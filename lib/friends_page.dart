@@ -18,6 +18,8 @@ class FriendsPage extends StatefulWidget{
   String keyword = "";
 
   List<User> friends = [];
+  List<User> requested = [];
+  List<User> requests = [];
 
   FriendsPage();
 
@@ -38,16 +40,40 @@ class FriendsPageState extends State<FriendsPage> {
   Future<List<User>> fetchAndSaveFriends(String userId) async {
     
     List<User> friends = await Utils.fetchFriends(userId);
+    List<User> requested = await Utils.fetchRequested(userId);
+    List<User> requests = await Utils.fetchRequests(userId);
 
     setState(() {
       widget.friends = friends;
+      widget.requested = requested;
+      widget.requests = requests;
     });
 
-    return friends;
+    // Put Requests at front
+    List<User> data = new List.from(requests)..addAll(friends);
+    return data;
   }
 
   bool isFriend(User user) {
     for (User friend in widget.friends) {
+      if (user.id == friend.id) {
+        return true;
+      }
+    }
+  return false;
+  }
+
+  bool isRequested(User user) {
+    for (User friend in widget.requested) {
+      if (user.id == friend.id) {
+        return true;
+      }
+    }
+  return false;
+  }
+
+  bool isRequest(User user) {
+    for (User friend in widget.requests) {
       if (user.id == friend.id) {
         return true;
       }
@@ -96,11 +122,20 @@ class FriendsPageState extends State<FriendsPage> {
                               children: <Widget>[
                                 ListTile(
                                   title: Text(snapshot.data[index].fullName()),
-                                  trailing: isFriend(snapshot.data[index]) ? null : MaterialButton(
+                                  trailing: isFriend(snapshot.data[index]) ? null 
+                                    : isRequested(snapshot.data[index]) ? Text("Pending") 
+                                    : isRequest(snapshot.data[index])
+                                    ? MaterialButton(
+                                    child: Text("Accept"),
+                                    onPressed: () async {
+                                      Utils.acceptFriendship(globals.user.id, snapshot.data[index].id);
+                                      await fetchAndSaveFriends(globals.user.id);
+                                    })
+                                    : MaterialButton(
                                     child: Text("Add"),
-                                    onPressed: () {
-                                      print("Add friend " + snapshot.data[index].id);
-                                      // Utils.addFriend(globals.user.id, snapshot.data[index].id)
+                                    onPressed: () async {
+                                      Utils.postFriendship(globals.user.id, snapshot.data[index].id);
+                                      await fetchAndSaveFriends(globals.user.id);
                                     }
                                   )
                                 )

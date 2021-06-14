@@ -26,6 +26,7 @@ class CreateGameState extends State<CreateGamePage> {
   int maxNumPlayers = 4;
 
   int holeNum = 9;
+  int numMinutes = 60;
 
   // List<String> players = ["","","",""];
   List<User> players = [globals.user];
@@ -39,9 +40,15 @@ class CreateGameState extends State<CreateGamePage> {
     // Only shift if a user has been removed
   }
 
-  void setHoleNumCallback(int value) {
+  void setNumHolesCallback(int value) {
     setState(() {
       holeNum = value;
+    });
+  }
+
+  void setNumMinutesCallback(int value) {
+    setState(() {
+      numMinutes = value;
     });
   }
 
@@ -134,8 +141,8 @@ class CreateGameState extends State<CreateGamePage> {
               SizedBox(height: 10,),
               Center(
                 child: gameTypeIndex == 0
-                  ? StandardGameOptions(holeNum: holeNum, setHoleNumCallback: setHoleNumCallback) 
-                  : CustomGameOptions(holeNum: holeNum, setHoleNumCallback: setHoleNumCallback),
+                  ? StandardGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback) 
+                  : CustomGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback, setNumMinutesCallback: setNumMinutesCallback),
               ),
               SizedBox(height: 60,),
               Expanded(
@@ -185,9 +192,9 @@ class CreateGameState extends State<CreateGamePage> {
 class StandardGameOptions extends StatefulWidget {
 
   int holeNum;
-  Function(int) setHoleNumCallback;
+  Function(int) setNumHolesCallback;
 
-  StandardGameOptions({required this.holeNum, required this.setHoleNumCallback});
+  StandardGameOptions({required this.holeNum, required this.setNumHolesCallback});
 
   @override
   StandardGameOptionsState createState() => StandardGameOptionsState();
@@ -211,7 +218,7 @@ class StandardGameOptionsState extends State<StandardGameOptions> {
               child: Text("9"),
               textColor: widget.holeNum==9 ? Colors.black : Colors.grey,
               onPressed: () {
-                widget.setHoleNumCallback(9);
+                widget.setNumHolesCallback(9);
               }
             ),
             SizedBox(width: 20,),
@@ -219,7 +226,7 @@ class StandardGameOptionsState extends State<StandardGameOptions> {
               child: Text("18"),
               textColor: widget.holeNum==18 ? Colors.black : Colors.grey,
               onPressed: () {
-                widget.setHoleNumCallback(18);
+                widget.setNumHolesCallback(18);
               }
             ),
           ],
@@ -232,9 +239,10 @@ class StandardGameOptionsState extends State<StandardGameOptions> {
 class CustomGameOptions extends StatefulWidget {
 
   int holeNum;
-  Function(int) setHoleNumCallback;
+  Function(int) setNumHolesCallback;
+  Function(int) setNumMinutesCallback;
 
-  CustomGameOptions({required this.holeNum, required this.setHoleNumCallback});
+  CustomGameOptions({required this.holeNum, required this.setNumHolesCallback, required this.setNumMinutesCallback});
 
   @override
   CustomGameOptionsState createState() => CustomGameOptionsState();
@@ -249,12 +257,14 @@ class CustomGameOptionsState extends State<CustomGameOptions> {
       title: "", 
       items: [for(var i=1; i<19; i+=1) i], 
       itemIndex: 8, 
+      callback: widget.setNumHolesCallback
     );
 
     final numMinsField = ArrowSelection(
       title: "", 
       items: [for(var i=15; i<180; i+=15) i], 
       itemIndex: 0, 
+      callback: widget.setNumMinutesCallback
     );
 
     return Column(

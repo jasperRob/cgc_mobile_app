@@ -5,6 +5,7 @@ import 'classes/hole.dart';
 import 'classes/score.dart';
 import 're-usable/arrow_selection.dart';
 import 'classes/globals.dart' as globals;
+import 'utils.dart';
 
 class HolePage extends StatefulWidget {
 
@@ -17,12 +18,21 @@ class HolePage extends StatefulWidget {
 
   @override
   HolePageState createState() => HolePageState();
+
 }
 
 class HolePageState extends State<HolePage> {
 
+  int score = 0;
+
   @override
   Widget build(BuildContext context) {
+
+  void setScoreCallback(int value) {
+    setState(() {
+      this.score = value;
+    });
+  }
 
     // TODO: FIX THIS, MAKE SURE PREVIOUSLY SELECTED SCORE IS SHOWN
 
@@ -68,6 +78,7 @@ class HolePageState extends State<HolePage> {
                 title: "Your Score: ", 
                 items: [for(var i=1; i<50; i+=1) i], 
                 itemIndex: widget.hole.par-1, 
+                callback: setScoreCallback
               ),
               SizedBox(height: 40,),
               Material(
@@ -81,6 +92,7 @@ class HolePageState extends State<HolePage> {
                   ),
                   padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                   onPressed: () {
+                    Utils.postScore(widget.hole.id, globals.user.id, score);
                     if (widget.game.numHoles == widget.hole.holeNum) {
                       widget.finishGameCallback(widget.game);
                     } else {

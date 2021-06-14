@@ -12,7 +12,7 @@ class Score {
   String id;
   String gameId;
   String holeId;
-  String playerId;
+  String userId;
   int value;
   String created;
   String updated;
@@ -21,7 +21,7 @@ class Score {
     required this.id,
     required this.gameId,
     required this.holeId,
-    required this.playerId,
+    required this.userId,
     required this.value,
     required this.created,
     required this.updated
@@ -32,7 +32,7 @@ class Score {
       id: data["id"],
       gameId: data["game_id"],
       holeId: data["hole_id"],
-      playerId: data["player_id"],
+      userId: data["user_id"],
       value: data["value"],
       created: data["created"],
       updated: data["updated"],

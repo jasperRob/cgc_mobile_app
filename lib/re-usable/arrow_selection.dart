@@ -5,10 +5,10 @@ class ArrowSelection extends StatefulWidget {
   final String title;
   final List<Object> items;
   int itemIndex;
-  // Function(Object) callback;
+  Function callback;
 
   // ArrowSelection({this.title, this.items, this.itemIndex, this.callback});
-  ArrowSelection({required this.title, required this.items, required this.itemIndex});
+  ArrowSelection({required this.title, required this.items, required this.itemIndex, required this.callback});
 
   @override
   ArrowSelectionState createState() => ArrowSelectionState();
@@ -46,7 +46,7 @@ class ArrowSelectionState extends State<ArrowSelection> {
               setState(() {
                 widget.itemIndex -= 1;
               });
-              // widget.callback(widget.items.elementAt(widget.itemIndex));
+              widget.callback(widget.items.elementAt(widget.itemIndex));
             }
           },
         ),
@@ -64,7 +64,7 @@ class ArrowSelectionState extends State<ArrowSelection> {
               setState(() {
                 widget.itemIndex += 1;
               });
-              // widget.callback(widget.items.elementAt(widget.itemIndex));
+              widget.callback(widget.items.elementAt(widget.itemIndex));
             }
           },
         ),

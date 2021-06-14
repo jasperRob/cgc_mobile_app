@@ -44,6 +44,7 @@ class FinishedGamePageState extends State<FinishedGamePage> {
       headerRowWidgets.add(Center(child: Text(player.fullName())));
     }
     List<TableRow> rows = [TableRow(children: headerRowWidgets)];
+    print("SCore Length: " + scores.length.toString());
 
     // Sort the holes by hole num
     holes.sort((a, b) => a.holeNum.compareTo(b.holeNum));
@@ -56,8 +57,8 @@ class FinishedGamePageState extends State<FinishedGamePage> {
       for (User player in players) {
         String playerScore = "N/A";
         for (Score score in scores) {
-          print(score.playerId + " = " + player.id + " --- " +score.holeId + " = " + hole.id);
-          if (score.playerId == player.id && score.holeId == hole.id) {
+          print(score.userId + " = " + player.id + " --- " +score.holeId + " = " + hole.id);
+          if (score.userId == player.id && score.holeId == hole.id) {
             print("ADDING SOMETHING TO ROWS");
             playerScore = score.value.toString();
           };
