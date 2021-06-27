@@ -12,6 +12,21 @@ import 'classes/globals.dart' as globals;
 import 'classes/user.dart';
 import 'utils.dart';
 
+class Debouncer {
+  final int milliseconds;
+  late VoidCallback action;
+  late Timer _timer;
+
+  Debouncer({required this.milliseconds});
+
+  run(VoidCallback action) {
+    if (null != _timer) {
+      _timer.cancel();
+    }
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+}
+
 class FriendsPage extends StatefulWidget{
 
   bool searchActive = false;
@@ -31,6 +46,8 @@ class FriendsPage extends StatefulWidget{
 
   
 class FriendsPageState extends State<FriendsPage> {
+
+  final _debouncer = Debouncer(milliseconds: 500);
 
   @override
   void initState() {
@@ -95,9 +112,11 @@ class FriendsPageState extends State<FriendsPage> {
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
               ),
               onChanged: (value) {
-                setState(() {
-                  widget.keyword = value;
-                  widget.searchActive = true;
+                _debouncer.run(() {
+                  setState(() {
+                    widget.keyword = value;
+                    widget.searchActive = true;
+                  });
                 });
               }
             ),
@@ -116,26 +135,34 @@ class FriendsPageState extends State<FriendsPage> {
                       padding: EdgeInsets.all(8),
                       itemCount: snapshot.data.length,
                       itemBuilder: (BuildContext context, int index){
+                        User user = snapshot.data[index];
                         return
                           Card(
                             child: Column(
                               children: <Widget>[
                                 ListTile(
-                                  title: Text(snapshot.data[index].fullName()),
-                                  trailing: isFriend(snapshot.data[index]) ? null 
-                                    : isRequested(snapshot.data[index]) ? Text("Pending") 
-                                    : isRequest(snapshot.data[index])
+                                  title: Text(user.fullName()),
+                                  trailing: isFriend(user) ? null 
+                                    : isRequest(user)
                                     ? MaterialButton(
                                     child: Text("Accept"),
                                     onPressed: () async {
-                                      Utils.acceptFriendship(globals.user.id, snapshot.data[index].id);
+                                      // Utils.acceptFriendship(globals.user.id, user.id);
+                                      bool success = await Utils.acceptFriendship(globals.user.id, user.id);
                                       await fetchAndSaveFriends(globals.user.id);
+                                      if (success) {
+                                        widget.friends.add(user);
+                                      }
                                     })
+                                    : isRequested(user) ? Text("Pending") 
                                     : MaterialButton(
                                     child: Text("Add"),
                                     onPressed: () async {
-                                      Utils.postFriendship(globals.user.id, snapshot.data[index].id);
+                                      bool success = await Utils.postFriendship(globals.user.id, user.id);
                                       await fetchAndSaveFriends(globals.user.id);
+                                      if (success) {
+                                        widget.requested.add(user);
+                                      }
                                     }
                                   )
                                 )

@@ -94,16 +94,16 @@ class GamePageState extends State<GamePage> {
                       padding: EdgeInsets.all(8),
                       itemCount: snapshot.data.length,
                       itemBuilder: (BuildContext context, int index){
+                        Hole hole = snapshot.data[index];
                         return
                           Card(
                             child: Column(
                               children: <Widget>[
                                 ListTile(
-                                  title: Text("Hole " + snapshot.data[index].holeNum.toString()),
+                                  title: Text("Hole " + hole.holeNum.toString()),
                                   trailing: MaterialButton(
                                     child: Text("View"),
-                                    onPressed: () {
-                                      Hole hole = snapshot.data[index];
+                                    onPressed: (hole.holeNum > 1 && !hole.scoresExist) ? null : () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(

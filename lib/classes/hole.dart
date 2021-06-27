@@ -13,6 +13,7 @@ class Hole {
   String gameId;
   int holeNum;
   int par;
+  bool scoresExist;
   String created;
   String updated;
 
@@ -21,6 +22,7 @@ class Hole {
     required this.gameId,
     required this.holeNum,
     required this.par,
+    required this.scoresExist,
     required this.created,
     required this.updated
     });
@@ -31,6 +33,7 @@ class Hole {
       gameId: data["game_id"],
       holeNum: data["hole_num"],
       par: data["par"],
+      scoresExist: data["scores_exist"],
       created: data["created"],
       updated: data["updated"],
     );

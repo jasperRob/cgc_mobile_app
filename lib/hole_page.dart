@@ -87,7 +87,7 @@ class HolePageState extends State<HolePage> {
                 color: Colors.green[300],
                 child: MaterialButton(
                   // minWidth: MediaQuery.of(context).size.width,
-                  child: (widget.game.numHoles == widget.hole.holeNum) ? Text("Finish") : Text("Next",
+                  child: (widget.game.numHoles == widget.hole.holeNum) ? Text("Finish") : Text("Submit Score",
                     textAlign: TextAlign.center,
                   ),
                   padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),

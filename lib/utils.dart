@@ -221,7 +221,7 @@ class Utils {
       body: jsonEncode(<String, dynamic>{
         'source_id': sourceId,
         'target_id': targetId,
-        'accepted': false,
+        'accepted': true,
       }),
     );
     if (response.statusCode == 200) {
