@@ -4,13 +4,174 @@ when home page is the active state
 */
 import 'package:flutter/material.dart';
 
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
 import 'classes/globals.dart' as globals;
 import 'classes/user.dart';
+import 'classes/req.dart';
 import 'utils.dart';
+
+import 'user_page.dart';
+
+const GET_USERS_BY_KEYWORD = '''
+query Query(\$usersByKeywordKeyword: String!) {
+  usersByKeyword(keyword: \$usersByKeywordKeyword) {
+    id
+    firstName
+    lastName
+    club {
+      id
+      name
+    }
+  }
+}
+''';
+
+const GET_USER_FRIENDS = '''
+query Query(\$nodeId: ID!) {
+  node(id: \$nodeId) {
+    ... on User {
+      friends {
+        edges {
+          node {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+    }
+  }
+}
+''';
+
+Future<dynamic> fetchUserFriends(User user) async {
+
+  const GET_USER_FRIENDS = """
+    query Query(\$nodeId: ID!) {
+      node(id: \$nodeId) {
+        ... on User {
+          friends {
+            edges {
+              node {
+                id
+                firstName
+                lastName
+              }
+            }
+          }
+        }
+      }
+    }
+  """;
+
+
+  QueryOptions queryOptions = QueryOptions(
+    document: gql(GET_USER_FRIENDS),
+    variables:{
+      "nodeId": user.graphqlID(),
+    }
+  );
+
+  dynamic result = await globals.client.query(queryOptions);
+
+  return result.data["node"]["friends"];
+}
+
+Future<dynamic> fetchFriendsAndRequests(User user) async {
+
+  const GET_USER_FRIENDS = """
+    query Query(\$nodeId: ID!) {
+      node(id: \$nodeId) {
+        ... on User {
+          friends {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+          requests {
+            edges {
+              node {
+                id
+                source {
+                  id
+                }
+                target {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  """;
+
+
+  QueryOptions queryOptions = QueryOptions(
+    document: gql(GET_USER_FRIENDS),
+    variables:{
+      "nodeId": user.graphqlID(),
+    }
+  );
+
+  dynamic result = await globals.client.query(queryOptions);
+
+  return result.data["node"];
+}
+
+Future<void> createRequest(User source, User target) async {
+
+  const CREATE_REQUEST = """
+    mutation Mutations(\$requestFriendSourceId: String!, \$requestFriendTargetId: String!) {
+      requestFriend(sourceId: \$requestFriendSourceId, targetId: \$requestFriendTargetId) {
+        request {
+          id
+          source {
+            id
+          }
+          target {
+            id
+          }
+        }
+      }
+    }
+  """;
+
+  MutationOptions mutationOptions = MutationOptions(
+    document: gql(CREATE_REQUEST),
+    variables: {
+      "requestFriendSourceId": source.id,
+      "requestFriendTargetId": target.id
+    }
+  );
+  dynamic result = await globals.client.mutate(mutationOptions);
+
+}
+
+Future<void> acceptRequest(Req request) async {
+
+  const ACCEPT_REQUEST = """
+    mutation Mutations(\$acceptRequestRequestId: String!) {
+      acceptRequest(requestId: \$acceptRequestRequestId) {
+        ok
+      }
+    }
+  """;
+
+  MutationOptions mutationOptions = MutationOptions(
+    document: gql(ACCEPT_REQUEST),
+    variables: {
+      "acceptRequestRequestId": request.id,
+    }
+  );
+  dynamic result = await globals.client.mutate(mutationOptions);
+}
 
 class Debouncer {
   final int milliseconds;
@@ -47,32 +208,36 @@ class FriendsPage extends StatefulWidget{
   
 class FriendsPageState extends State<FriendsPage> {
 
-  final _debouncer = Debouncer(milliseconds: 500);
-
   @override
   void initState() {
     super.initState();
   }
 
-  Future<List<User>> fetchAndSaveFriends(String userId) async {
+  Future<void> fetchAndSaveFriends() async {
     
-    List<User> friends = await Utils.fetchFriends(userId);
-    List<User> requested = await Utils.fetchRequested(userId);
-    List<User> requests = await Utils.fetchRequests(userId);
+    dynamic data = await fetchFriendsAndRequests(globals.user);
 
-    setState(() {
-      widget.friends = friends;
-      widget.requested = requested;
-      widget.requests = requests;
-    });
+    List<User> friends = [];
+    if (data["friends"] != null) {
+      friends = new List<User>.from(data["friends"]["edges"].map((item) {
+        return User.fromJSON(item["node"]);
+      }));
+    }
 
-    // Put Requests at front
-    List<User> data = new List.from(requests)..addAll(friends);
-    return data;
+    List<Req> requests = [];
+    if (data["requests"] != null) {
+      requests = new List<Req>.from(data["requests"]["edges"].map((item) {
+        return Req.fromJSON(item["node"]);
+      }));
+    }
+
+    globals.user.friends = friends;
+    globals.user.requests = requests;
+
   }
 
   bool isFriend(User user) {
-    for (User friend in widget.friends) {
+    for (User friend in globals.user.friends) {
       if (user.id == friend.id) {
         return true;
       }
@@ -81,8 +246,8 @@ class FriendsPageState extends State<FriendsPage> {
   }
 
   bool isRequested(User user) {
-    for (User friend in widget.requested) {
-      if (user.id == friend.id) {
+    for (Req req in globals.user.requests) {
+      if (user.id == req.target.id) {
         return true;
       }
     }
@@ -90,14 +255,14 @@ class FriendsPageState extends State<FriendsPage> {
   }
 
   bool isRequest(User user) {
-    for (User friend in widget.requests) {
-      if (user.id == friend.id) {
+    for (Req req in globals.user.requests) {
+      if (user.id == req.source.id) {
         return true;
       }
     }
   return false;
   }
-  
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
@@ -112,70 +277,102 @@ class FriendsPageState extends State<FriendsPage> {
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
               ),
               onChanged: (value) {
-                _debouncer.run(() {
-                  setState(() {
-                    widget.keyword = value;
-                    widget.searchActive = true;
-                  });
+                setState(() {
+                  widget.keyword = value;
+                  widget.searchActive = true;
                 });
               }
             ),
           ),
           Container(
-            child: FutureBuilder<List<dynamic>>(
-              future: widget.searchActive ? Utils.searchUsers(widget.keyword) : fetchAndSaveFriends(globals.user.id),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
-                  print(snapshot.data);
-                  // Filter out the current user
-                  snapshot.data.removeWhere((user) => user.id == globals.user.id);
-                  return snapshot.data.isNotEmpty
-                    ? ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.all(8),
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (BuildContext context, int index){
-                        User user = snapshot.data[index];
-                        return
-                          Card(
-                            child: Column(
-                              children: <Widget>[
-                                ListTile(
-                                  title: Text(user.fullName()),
-                                  trailing: isFriend(user) ? null 
-                                    : isRequest(user)
-                                    ? MaterialButton(
-                                    child: Text("Accept"),
-                                    onPressed: () async {
-                                      // Utils.acceptFriendship(globals.user.id, user.id);
-                                      bool success = await Utils.acceptFriendship(globals.user.id, user.id);
-                                      await fetchAndSaveFriends(globals.user.id);
-                                      if (success) {
-                                        widget.friends.add(user);
-                                      }
-                                    })
-                                    : isRequested(user) ? Text("Pending") 
-                                    : MaterialButton(
-                                    child: Text("Add"),
-                                    onPressed: () async {
-                                      bool success = await Utils.postFriendship(globals.user.id, user.id);
-                                      await fetchAndSaveFriends(globals.user.id);
-                                      if (success) {
-                                        widget.requested.add(user);
-                                      }
-                                    }
-                                  )
-                                )
-                              ],
-                            ),
-                          );
-                      })
-                    : Center(child: Text("No Friends to show"));
-                } else {
-                  return Center(child: CircularProgressIndicator());
+            child: Query(
+              options: widget.searchActive ? QueryOptions(
+                  document: gql(GET_USERS_BY_KEYWORD),
+                  variables: {
+                    "usersByKeywordKeyword": widget.keyword
+                  },
+                  pollInterval: Duration(seconds: 10),
+              ) : QueryOptions(
+                  document: gql(GET_USER_FRIENDS),
+                  variables: {
+                    "nodeId": globals.user.graphqlID()
+                  },
+                  pollInterval: Duration(seconds: 10),
+              ),
+              builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                if (result.hasException) {
+                    return Text(result.exception.toString());
                 }
+
+                if (result.isLoading) {
+                  return Text('Loading');
+                }
+
+                List users = [];
+                if (result.data!["node"] != null) {
+                  users = result.data!["node"]["friends"]["edges"];
+                } else {
+                  users = result.data!["usersByKeyword"];
+                }
+
+                return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    User user;
+                    if (users[index]["node"] != null) {
+                      user = User.fromJSON(users[index]["node"]);
+                    } else {
+                      user = User.fromJSON(users[index]);
+                    }
+
+                    return Card(
+                      child: Column(
+                        children: <Widget>[
+                          ListTile(
+                            title: Text(user.fullName()),
+                            trailing: isFriend(user) ? MaterialButton(
+                              child: Text("View"),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UserPage(user: user),
+                                  )
+                                );
+                              })
+                              : isRequest(user)
+                              ? MaterialButton(
+                              child: Text("Accept"),
+                              onPressed: () async {
+                                // Utils.acceptFriendship(globals.user.id, user.id);
+
+                                for (Req request in user.requests) {
+                                  if (request.source.id == user.id && request.target.id == globals.user.id) {
+                                    await acceptRequest(request);
+                                    await fetchAndSaveFriends();
+                                    widget.friends.add(user);
+                                    break;
+                                  }
+                                }
+                              })
+                              : isRequested(user) ? Text("Pending") 
+                              : MaterialButton(
+                              child: Text("Add"),
+                              onPressed: () async {
+                                await createRequest(globals.user, user);
+                                await fetchAndSaveFriends();
+                                widget.requested.add(user);
+                              }
+                            )
+                          )
+                        ],
+                      ),
+                    );
+                });
               },
-            ),
+            )
           ),
         ],
       )

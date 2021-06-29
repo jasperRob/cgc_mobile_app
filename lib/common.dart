@@ -3,7 +3,12 @@ import 'package:cgc_mobile_app/friends_page.dart';
 import 'package:cgc_mobile_app/create_game_page.dart';
 import 'package:cgc_mobile_app/settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'main.dart';
+
+import 'club_page.dart';
+
+import 'classes/globals.dart' as globals;
 
 
 class Common extends StatefulWidget {
@@ -38,52 +43,69 @@ class CommonBodyState extends State<Common> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(primaryColor: Colors.green[300]),
-      home: Scaffold(
-        appBar: AppBar(
-          // leading: Icon(
-          //   Icons.arrow_back
-          // ),
-          title: Text(_textOptions.elementAt(_selectedIndex)),
-          // titleSpacing: 0.0,
-          actions: <Widget>[
-            Container(
-              padding: EdgeInsets.fromLTRB(0.0, 0, 20.0, 0),
-              child: IconButton(
-                icon: Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SettingsPage(),
-                    )
-                  );
-                },
+    return GraphQLProvider(
+        client: ValueNotifier<GraphQLClient>(
+            globals.client
+        ),
+        child: MaterialApp(
+        theme: ThemeData(primaryColor: Colors.green[300]),
+        home: Scaffold(
+          appBar: AppBar(
+            leading: Builder(
+              builder: (BuildContext context) {
+                return IconButton(
+                  icon: const Icon(Icons.badge),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ClubPage(club: globals.user.club),
+                      )
+                    );
+                  },
+                );
+              },
+            ),            
+            title: Text(_textOptions.elementAt(_selectedIndex)),
+            // titleSpacing: 0.0,
+            actions: <Widget>[
+              Container(
+                padding: EdgeInsets.fromLTRB(0.0, 0, 20.0, 0),
+                child: IconButton(
+                  icon: Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SettingsPage(),
+                      )
+                    );
+                  },
+                ),
               ),
-            ),
-          ]
-        ),
-        body: Center(
-          child: _widgetOptions.elementAt(_selectedIndex),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.home),
-              title: new Text("Home")
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.add),
-              title: new Text("Create Game")
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.people),
-              title: new Text("Friends")
-            )
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
+            ]
+          ),
+          body: Center(
+            child: _widgetOptions.elementAt(_selectedIndex),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(
+                icon: new Icon(Icons.home),
+                title: new Text("Home")
+              ),
+              BottomNavigationBarItem(
+                icon: new Icon(Icons.add),
+                title: new Text("Create Game")
+              ),
+              BottomNavigationBarItem(
+                icon: new Icon(Icons.people),
+                title: new Text("Friends")
+              )
+            ],
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+          ),
         ),
       ),
     );

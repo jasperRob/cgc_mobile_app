@@ -1,6 +1,4 @@
-/* 
-Game Class
-
+/*
 Used to store data regarding games
 
 Authors: Jasper Robison
@@ -8,32 +6,72 @@ Authors: Jasper Robison
 
 import 'dart:convert';
 
-class Game {
-  String id;
-  String clubId;
-  int numHoles;
-  bool active;
-  String created;
-  String updated;
+import 'club.dart';
+import 'user.dart';
+import 'hole.dart';
+import 'score.dart';
 
-  Game({
-    required this.id, 
-    required this.clubId, 
-    required this.numHoles,
-    required this.active,
-    required this.created,
-    required this.updated
-    });
+Codec stringToBase64 = utf8.fuse(base64);
+
+class Game {
+  late String id;
+  late Club club;
+  late int numHoles;
+  late List<Hole> holes;
+  late List<User> players;
+  late bool active;
+
+  Game(String id, int numHoles, List<Hole> holes, List<User> players, bool active) {
+    this.id = id;
+    this.numHoles = numHoles;
+    this.holes = holes;
+    this.players = players;
+    this.active = active;
+  }
 
   factory Game.fromJSON(dynamic data) {
-    return Game(
-      id: data["id"],
-      clubId: data["club_id"],
-      numHoles: data["num_holes"],
-      active: data["active"],
-      created: data["created"],
-      updated: data["updated"],
+    // Create Hole list
+    List<Hole> holes = [];
+    if (data["holes"] != null) {
+      holes = new List<Hole>.from(data["holes"]["edges"].map((item) {
+        return Hole.fromJSON(item["node"]);
+      }));
+    }
+    // Create Player List
+    List<User> players = [];
+    if (data["players"] != null) {
+      players = new List.from(data["players"]["edges"].map((item) {
+        return User.fromJSON(item["node"]);
+      }));
+    }
+
+    // Create Player List
+    List<User> winners = [];
+    if (data["winners"] != null) {
+      winners = new List.from(data["winners"]["edges"].map((item) {
+        return User.fromJSON(item["node"]);
+      }));
+    }
+    Game game = Game(
+      // Graphene appends class name then Base64 encodes any ID.
+      stringToBase64.decode(data["id"]).toString().split(':')[1], 
+      data["numHoles"],
+      holes,
+      players,
+      data["active"]
     );
+    if (data["club"] != null) {
+      game.club = Club.fromJSON(data["club"]);
+    }
+    return game;
+  }
+
+  String graphqlID() {
+    return stringToBase64.encode("Game:" + this.id).toString();
+  }
+
+  String getCreated() {
+    return this.id;
   }
 }
 

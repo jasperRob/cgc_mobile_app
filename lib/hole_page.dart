@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
+import 'classes/user.dart';
 import 'classes/game.dart';
 import 'classes/hole.dart';
 import 'classes/score.dart';
@@ -7,23 +9,55 @@ import 're-usable/arrow_selection.dart';
 import 'classes/globals.dart' as globals;
 import 'utils.dart';
 
+Future<dynamic> submitScore(Hole hole, User player, int value) async {
+
+  const CREATE_SCORE = """
+  mutation Mutations(\$createScoreHoleId: String!, \$createScorePlayerId: String!, \$createScoreValue: Int!) {
+    createScore(holeId: \$createScoreHoleId, playerId: \$createScorePlayerId, value: \$createScoreValue) {
+      ok
+      score {
+        id
+        player {
+          id
+        }
+        value
+      }
+    }
+  }
+  """;
+
+  print("VALUE: " + value.toString());
+  MutationOptions mutationOptions = MutationOptions(
+    document: gql(CREATE_SCORE),
+    variables: {
+      "createScoreHoleId": hole.id,
+      "createScorePlayerId": player.id,
+      "createScoreValue": value
+    }
+  );
+  dynamic result = await globals.client.mutate(mutationOptions);
+  return result.data["createScore"];
+}
+
 class HolePage extends StatefulWidget {
 
   Hole hole;
   Game game;
-  Function(Hole) nextHoleCallback;
+  Function(Hole, Score) nextHoleCallback;
   Function(Game) finishGameCallback;
 
   HolePage({required this.hole, required this.game, required this.nextHoleCallback, required this.finishGameCallback});
 
   @override
-  HolePageState createState() => HolePageState();
+  HolePageState createState() => HolePageState(this.hole.par);
 
 }
 
 class HolePageState extends State<HolePage> {
 
-  int score = 0;
+  int score;
+
+  HolePageState(this.score);
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +125,13 @@ class HolePageState extends State<HolePage> {
                     textAlign: TextAlign.center,
                   ),
                   padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                  onPressed: () {
-                    Utils.postScore(widget.hole.id, globals.user.id, score);
+                  onPressed: () async {
+                    dynamic data = await submitScore(widget.hole, globals.user, score);
+                    Score newScore = Score.fromJSON(data["score"]);
                     if (widget.game.numHoles == widget.hole.holeNum) {
                       widget.finishGameCallback(widget.game);
                     } else {
-                      widget.nextHoleCallback(widget.hole);
+                      widget.nextHoleCallback(widget.hole, newScore);
                     }
                   }
                 ),

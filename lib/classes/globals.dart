@@ -1,25 +1,30 @@
 library cgc_mobile_app.globals;
 
 import 'dart:convert';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'user.dart';
 
-String uri = 'http://localhost:8080/data';
-
 String token = "";
 
-User user = new User(
-    id: "dummy", 
-    firstName: "dummy", 
-    lastName: "dummy", 
-    email: "dummy", 
-    clubId: "dummy", 
-    gender: "dummy", 
-    birthDate: "dummy", 
-    handicap: 0, 
-    totalGames: 0, 
-    avgScore: 0, 
-    created: "dummy", 
-    updated: "dummy"
-    );
+GraphQLClient client = GraphQLClient(
+  link: HttpLink(
+    'http://127.0.0.1:4000/graphql',
+  ),
+  cache: GraphQLCache(),
+);
+
+User user = User(
+  "null",
+  "null",
+  "null",
+  "null",
+  "null",
+  "null",
+  -1,
+  -1,
+  -1,
+  [],
+  []
+);
 

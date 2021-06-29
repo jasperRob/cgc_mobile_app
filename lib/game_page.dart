@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'classes/game.dart';
 import 'classes/hole.dart';
@@ -10,55 +11,121 @@ import 'hole_page.dart';
 
 import 'utils.dart';
 
+const GET_GAME = """
+  query Query(\$nodeId: ID!) {
+    node(id: \$nodeId) {
+      ... on Game {
+        id
+        club {
+          id
+          name
+          country
+        }
+        numHoles
+        holes {
+          edges {
+            node {
+              id
+              holeNum
+              par
+              scores {
+                edges {
+                  node {
+                    id
+                    value
+                    player {
+                      id
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        players {
+          edges {
+            node {
+              id
+              firstName
+              lastName
+            }
+          }
+        }
+      }
+    }
+  }
+""";
+
+Future<dynamic> finishGame(Game game) async {
+
+  const UPDATE_GAME = """
+  mutation Mutations(\$updateGameGameId: String!, \$updateGameActive: Boolean) {
+    updateGame(gameId: \$updateGameGameId, active: \$updateGameActive) {
+      game {
+        id
+      }
+    }
+  }
+  """;
+
+  MutationOptions mutationOptions = MutationOptions(
+    document: gql(UPDATE_GAME),
+    variables: {
+      "updateGameGameId": game.id,
+      "updateGameActive": false,
+    }
+  );
+  dynamic result = await globals.client.mutate(mutationOptions);
+}
+
 class GamePage extends StatefulWidget {
 
   Game game;
   GamePage({required this.game});
 
   @override
-  GamePageState createState() => GamePageState();
+  GamePageState createState() => GamePageState(this.game);
 }
 
 class GamePageState extends State<GamePage> {
+
+  Game game;
+  GamePageState(this.game);
 
   @override
   void initState() {
     super.initState();
   }
 
-  void nextHoleCallback(Hole hole) {
+  void nextHoleCallback(Hole hole, Score score) {
     print("NEXT HOLE CALLBACK");
+    print(game);
     // TODO: Figure out a more efficient way of doing this
-    Future<List<Hole>> hole_future = Utils.getHoles(widget.game.id);
-    hole_future.then((holes) {
-      for (Hole childHole in holes) {
-        if (childHole.holeNum == hole.holeNum + 1) {
-          // Pop Current Hole Page
-          Navigator.of(context).pop();
-          // Push Next Hole Page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => new HolePage(
-                  hole: childHole,
-                  game: widget.game,
-                  nextHoleCallback: nextHoleCallback,
-                  finishGameCallback: finishGameCallback
-                  ),
-            )
-          );
-          break;
-        }
+    for (Hole childHole in game.holes) {
+      if (childHole.holeNum == hole.holeNum + 1) {
+        // Pop Current Hole Page
+        Navigator.of(context).pop();
+        // Push Next Hole Page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => new HolePage(
+                hole: childHole,
+                game: game,
+                nextHoleCallback: nextHoleCallback,
+                finishGameCallback: finishGameCallback
+                ),
+          )
+        );
+        break;
       }
-    }).catchError((err){
-      print("BIG ERROR FINDING NEXT HOLE: " + err);
-    });
+    }
   }
 
   void finishGameCallback(Game game) {
     print("FINISH GAME CALLBACK");
     // TODO: Figure out a more efficient way of doing this
-    Future<void> game_future = Utils.finishGame(widget.game);
+    Future<void> game_future = finishGame(game);
     game_future.then((game) {
       Navigator.of(context).pop();
       Navigator.of(context).pop();
@@ -82,53 +149,63 @@ class GamePageState extends State<GamePage> {
       ),
       body: Column(
         children: <Widget>[
-          Container(
-            child: FutureBuilder<List<dynamic>>(
-              future: Utils.getHoles(widget.game.id),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
-                  print(snapshot.data);
-                  return snapshot.data.isNotEmpty
-                    ? ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.all(8),
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (BuildContext context, int index){
-                        Hole hole = snapshot.data[index];
-                        return
-                          Card(
-                            child: Column(
-                              children: <Widget>[
-                                ListTile(
-                                  title: Text("Hole " + hole.holeNum.toString()),
-                                  trailing: MaterialButton(
-                                    child: Text("View"),
-                                    onPressed: (hole.holeNum > 1 && !hole.scoresExist) ? null : () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => new HolePage(
-                                            hole: hole,
-                                            game: widget.game,
-                                            nextHoleCallback: nextHoleCallback,
-                                            finishGameCallback: finishGameCallback
-                                            ),
-                                        )
-                                      );
-                                    }
-                                  )
-                                )
-                              ],
-                            ),
-                          );
-                      })
-                    : Center(child: Text("No Friends to show"));
-                } else {
-                  return Center(child: CircularProgressIndicator());
-                }
-              },
+            Container(
+              child: Query(
+                options: QueryOptions(
+                    document: gql(GET_GAME),
+                    variables: {
+                      "nodeId": game.graphqlID()
+                    },
+                    pollInterval: Duration(seconds: 10),
+                ),
+                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                  if (result.hasException) {
+                      return Text(result.exception.toString());
+                  }
+
+                  if (result.isLoading) {
+                    return Text('Loading');
+                  }
+
+                  print(result.data!["node"]);
+                  Game game = Game.fromJSON(result.data!["node"]);
+                  List holes = game.holes;
+
+                  return ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: holes.length,
+                    itemBuilder: (context, index) {
+                      Hole hole = holes[index];
+                      return Card(
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              title: Text("Hole " + hole.holeNum.toString()),
+                              trailing: MaterialButton(
+                                child: Text("View"),
+                                onPressed: (hole.holeNum > 1 && hole.scores.length == 0) ? null : () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => new HolePage(
+                                        hole: hole,
+                                        game: game,
+                                        nextHoleCallback: nextHoleCallback,
+                                        finishGameCallback: finishGameCallback
+                                        ),
+                                    )
+                                  ).then((_) => setState(() {}));
+                                }
+                              )
+                            )
+                          ],
+                        ),
+                      );
+                  });
+                },
+              )
             ),
-          ),
         ],
       )
     );

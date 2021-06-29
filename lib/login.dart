@@ -18,28 +18,44 @@ import 'classes/user.dart';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+Future<dynamic> login(String userEmail, String password) async {
+
+  const GET_USER_BY_EMAIL = """
+  query Query {
+    userByEmail(email: "test.person@test.com") {
+      id
+      firstName
+      lastName
+      email
+      birthDate
+      gender
+      handicap
+      totalGames
+      admin
+      club {
+        id
+        name
+      }
+      friends {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }""";
 
 
-// Future<List<User>> fetchFriends() async {
+  QueryOptions queryOptions = QueryOptions(
+    document: gql(GET_USER_BY_EMAIL)
+  );
 
-//   var response = await http.get(Uri.parse('http://localhost:8080/user/friends?user_id=f1f4c25a-c9d1-11eb-b2a2-acde48001122'));
-//   List<User> users;
+  dynamic result = await globals.client.query(queryOptions);
 
-//   users=(json.decode(response.body) as List).map((i) =>
-//                 User.fromJSON(i)).toList();
-//   return users;
-// }
-
-Future<dynamic> login(String email, String password) async {
-  
-  final response =
-      await http.get(Uri.parse('http://localhost:8080/login?email=jasper.robison@gmail.com&password=test'));
-
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    throw Exception('Failed to load album');
-  }
+  return result.data["userByEmail"];
 }
 
 class Login extends StatelessWidget {
@@ -79,11 +95,11 @@ class Login extends StatelessWidget {
         onPressed: () async {
           // Send Login request
           print("LOGGIN IN");
-          Future<dynamic> data = login("jasper.robison@gmail.com", "test");
+          Future<dynamic> data = login("test.person@test.com", "test");
           data.then((body){
+            print("HERE");
             print(body);
-            globals.token = body["token"];
-            globals.user = User.fromJSON(body["user"]);
+            globals.user = User.fromJSON(body);
             Navigator.push(
               context,
               MaterialPageRoute(

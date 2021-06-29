@@ -7,36 +7,29 @@ Authors: Jasper Robison
 */
 
 import 'dart:convert';
+import 'user.dart';
+
+Codec stringToBase64 = utf8.fuse(base64);
 
 class Score {
-  String id;
-  String gameId;
-  String holeId;
-  String userId;
-  int value;
-  String created;
-  String updated;
+  late String id;
+  late User player;
+  late int value;
 
-  Score({
-    required this.id,
-    required this.gameId,
-    required this.holeId,
-    required this.userId,
-    required this.value,
-    required this.created,
-    required this.updated
-    });
+  Score(String id, int value) {
+    this.id = id;
+    this.value = value;
+  }
 
   factory Score.fromJSON(dynamic data) {
-    return Score(
-      id: data["id"],
-      gameId: data["game_id"],
-      holeId: data["hole_id"],
-      userId: data["user_id"],
-      value: data["value"],
-      created: data["created"],
-      updated: data["updated"],
+    Score score = Score(
+      stringToBase64.decode(data["id"]).toString().split(':')[1],
+      data["value"]
     );
+    if (data["player"] != null) {
+      score.player = User.fromJSON(data["player"]);
+    }
+    return score;
   }
 }
 

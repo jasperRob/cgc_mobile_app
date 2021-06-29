@@ -7,12 +7,58 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'classes/globals.dart' as globals;
 import 'classes/game.dart';
 import 'game_page.dart';
 import 'finished_game_page.dart';
 import 'utils.dart';
+
+const GET_ALL_GAMES = '''
+query Query(\$allGamesActive: Boolean) {
+  allGames(active: \$allGamesActive) {
+    edges {
+      node {
+        id
+        numHoles
+        active
+        holes {
+          edges {
+            node {
+              id
+              holeNum
+              par
+              scores {
+                edges {
+                  node {
+                    id
+                    value
+                    player {
+                      id
+                      firstName
+                      lastName
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        players {
+          edges {
+            node {
+              id
+              firstName
+              lastName
+            }
+          }
+        }
+      }
+    }
+  }
+}
+''';
 
 class HomePage extends StatefulWidget {
 
@@ -35,7 +81,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Widget getGameTitle(Game game) {
-    String dateString = getSimpleDate(dateFormat.parse(game.created));
+    String dateString = getSimpleDate(dateFormat.parse(game.getCreated()));
     return Text(dateString + " - " + game.numHoles.toString() +  " Holes");
   }
 
@@ -52,47 +98,59 @@ class HomePageState extends State<HomePage> {
               child: Text("Active Games")
             ),
             Container(
-              child: FutureBuilder<List<Game>>(
-                future: Utils.fetchGamesActive(globals.user.id),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    return snapshot.data.isNotEmpty
-                      ? ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.all(8),
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (BuildContext context, int index){
-                          return
-                            Card(
-                              child: Column(
-                                children: <Widget>[
-                                  ListTile(
-                                    title: getGameTitle(snapshot.data[index]),
-                                    trailing: MaterialButton(
-                                      child: Text("View"),
-                                      onPressed: () {
-                                        Game game = snapshot.data[index];
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => new GamePage(
-                                              game: game,
-                                              ),
-                                          )
-                                        );
-                                      }
-                                    )
-                                  )
-                                ],
-                              ),
-                            );
-                        })
-                      : Center(child: Text("No Active Games"));
-                  } else {
-                    return Center(child: CircularProgressIndicator());
+              child: Query(
+                options: QueryOptions(
+                    document: gql(GET_ALL_GAMES),
+                    variables: {
+                      "allGamesActive": true
+                    },
+                    pollInterval: Duration(seconds: 10),
+                ),
+                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                  if (result.hasException) {
+                      return Text(result.exception.toString());
                   }
+
+                  if (result.isLoading) {
+                    return Text('Loading');
+                  }
+
+                  // it can be either Map or List
+                  List games = result.data!['allGames']['edges'];
+
+                  return ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: games.length,
+                    itemBuilder: (context, index) {
+                      Game game = Game.fromJSON(games[index]["node"]);
+
+                      return Card(
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              title: Text(game.id),
+                              trailing: MaterialButton(
+                                child: Text("View"),
+                                onPressed: () {
+                                  print("PRESSED");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => new GamePage(
+                                        game: game,
+                                        ),
+                                    )
+                                  ).then((_) => setState(() {}));
+                                }
+                              )
+                            )
+                          ],
+                        ),
+                      );
+                  });
                 },
-              ),
+              )
             ),
             SizedBox(height: 10,),
             Container(
@@ -100,48 +158,59 @@ class HomePageState extends State<HomePage> {
               child: Text("Previous Games")
             ),
             Container(
-              child: FutureBuilder<List<Game>>(
-                future: Utils.fetchGamesInactive(globals.user.id),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if(snapshot.hasData){
-                    // print(snapshot.data[0]);
-                    return snapshot.data.isNotEmpty
-                      ? ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.all(8),
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (BuildContext context, int index){
-                          return
-                            Card(
-                              child: Column(
-                                children: <Widget>[
-                                  ListTile(
-                                    title: getGameTitle(snapshot.data[index]),
-                                    trailing: MaterialButton(
-                                      child: Text("View"),
-                                      onPressed: () {
-                                        Game game = snapshot.data[index];
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => new FinishedGamePage(
-                                              game: game,
-                                              ),
-                                          )
-                                        );
-                                      }
-                                    )
-                                  )
-                                ],
-                              ),
-                            );
-                        })
-                      : Center(child: Text("No Inactive Games"));
-                  }else {
-                    return Center(child: CircularProgressIndicator());
+              child: Query(
+                options: QueryOptions(
+                    document: gql(GET_ALL_GAMES),
+                    variables: {
+                      "allGamesActive": false
+                    },
+                    pollInterval: Duration(seconds: 10),
+                ),
+                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                  if (result.hasException) {
+                      return Text(result.exception.toString());
                   }
+
+                  if (result.isLoading) {
+                    return Text('Loading');
+                  }
+
+                  // it can be either Map or List
+                  List games = result.data!['allGames']['edges'];
+
+                  return ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: games.length,
+                    itemBuilder: (context, index) {
+                      Game game = Game.fromJSON(games[index]["node"]);
+
+                      return Card(
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              title: Text(game.id),
+                              trailing: MaterialButton(
+                                child: Text("View"),
+                                onPressed: () {
+                                  print("PRESSED");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => new FinishedGamePage(
+                                        game: game,
+                                        ),
+                                    )
+                                  ).then((_) => setState(() {}));
+                                }
+                              )
+                            )
+                          ],
+                        ),
+                      );
+                  });
                 },
-              ),
+              )
             ),
           ],
         ),

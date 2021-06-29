@@ -7,35 +7,37 @@ Authors: Jasper Robison
 */
 
 import 'dart:convert';
+import 'score.dart';
+
+Codec stringToBase64 = utf8.fuse(base64);
 
 class Hole {
-  String id;
-  String gameId;
-  int holeNum;
-  int par;
-  bool scoresExist;
-  String created;
-  String updated;
+  late String id;
+  late int holeNum;
+  late int par;
+  late List<Score> scores;
 
-  Hole({
-    required this.id,
-    required this.gameId,
-    required this.holeNum,
-    required this.par,
-    required this.scoresExist,
-    required this.created,
-    required this.updated
-    });
+  Hole(String id, int holeNum, int par, List<Score> scores) {
+    this.id = id;
+    this.holeNum = holeNum;
+    this.par = par;
+    this.scores = scores;
+  }
 
   factory Hole.fromJSON(dynamic data) {
+
+    List<Score> scores = [];
+    if (data["scores"] != null) {
+      scores = new List<Score>.from(data["scores"]["edges"].map((item) {
+        return Score.fromJSON(item["node"]);
+      }));
+    }
+
     return Hole(
-      id: data["id"],
-      gameId: data["game_id"],
-      holeNum: data["hole_num"],
-      par: data["par"],
-      scoresExist: data["scores_exist"],
-      created: data["created"],
-      updated: data["updated"],
+      stringToBase64.decode(data["id"]).toString().split(':')[1],
+      data["holeNum"],
+      data["par"],
+      scores
     );
   }
 }

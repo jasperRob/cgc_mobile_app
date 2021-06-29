@@ -27,38 +27,31 @@ class FinishedGamePageState extends State<FinishedGamePage> {
     super.initState();
   }
 
-  Future<List<dynamic>> fetchAllTableData(Game game) async {
 
-    // TODO: Get Game Player
-    List<User> players = await Utils.getPlayers(game.id);
-    List<Hole> holes = await Utils.getHoles(game.id);
-    List<Score> scores = await Utils.getAllScores(game.id);
-    List<dynamic> dataTuple = [players, holes, scores];
-    return dataTuple;
-  }
-
-  List<TableRow> getScoreTableRows(Game game, List<User> players, List<Hole> holes, List<Score> scores) {
+  List<TableRow> getScoreTableRows(Game game) {
+    print("GETTING ROWS");
 
     List<Widget> headerRowWidgets = [Center(child: Text("Hole #"))];
-    for (User player in players) {
+    for (User player in game.players) {
       headerRowWidgets.add(Center(child: Text(player.fullName())));
     }
     List<TableRow> rows = [TableRow(children: headerRowWidgets)];
-    print("SCore Length: " + scores.length.toString());
 
-    // Sort the holes by hole num
-    holes.sort((a, b) => a.holeNum.compareTo(b.holeNum));
+    // // Sort the holes by hole num
+    // holes.sort((a, b) => a.holeNum.compareTo(b.holeNum));
 
-    for (Hole hole in holes) {
+    for (Hole hole in game.holes) {
+      print("holeeeeeee");
 
       List<Widget> currentRow = [];
       currentRow.add(Center(child: Text("Hole " + hole.holeNum.toString())));
 
-      for (User player in players) {
+      for (User player in game.players) {
+        print(player.fullName());
         String playerScore = "N/A";
-        for (Score score in scores) {
-          print(score.userId + " = " + player.id + " --- " +score.holeId + " = " + hole.id);
-          if (score.userId == player.id && score.holeId == hole.id) {
+        for (Score score in hole.scores) {
+          // NOTE: THIS IS WRONG
+          if (score.player.id == player.id) {
             print("ADDING SOMETHING TO ROWS");
             playerScore = score.value.toString();
           };
@@ -88,24 +81,10 @@ class FinishedGamePageState extends State<FinishedGamePage> {
         children: [
           SizedBox(height: 80),
           Container(
-            child: FutureBuilder(
-              future: fetchAllTableData(widget.game),
-              builder: (context, snapshot) {
-                print(snapshot.data);
-                if(!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if(snapshot.hasData) {
-                  dynamic data = snapshot.data;
-                  return Table(
-                    border: TableBorder.all(),
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    children: getScoreTableRows(widget.game, data[0], data[1], data[2]),
-
-                  );
-                }
-                return Center();
-              },
+            child: Table(
+              border: TableBorder.all(),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: getScoreTableRows(widget.game),
             ),
           ),
         ]

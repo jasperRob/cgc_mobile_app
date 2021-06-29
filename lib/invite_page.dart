@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
-import '../classes/user.dart';
-import '../classes/globals.dart' as globals;
+
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+
+import 'classes/globals.dart' as globals;
+import 'classes/user.dart';
+import 'classes/req.dart';
 
 import 'utils.dart';
+
+const GET_USER_FRIENDS = '''
+query Query(\$nodeId: ID!) {
+  node(id: \$nodeId) {
+    ... on User {
+      friends {
+        edges {
+          node {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+    }
+  }
+}
+''';
 
 class InvitePage extends StatefulWidget {
 
@@ -63,41 +86,51 @@ class InvitePageState extends State<InvitePage> {
             ),
           ),
           Container(
-            child: FutureBuilder<List<dynamic>>(
-              future: Utils.fetchFriends(globals.user.id),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
-                  print(snapshot.data);
-                  return snapshot.data.isNotEmpty
-                    ? ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.all(8),
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (BuildContext context, int index){
-                        return
-                          Card(
-                            child: Column(
-                              children: <Widget>[
-                                ListTile(
-                                  title: Text(snapshot.data[index].fullName()),
-                                ),
-                                MaterialButton(
-                                  child: Text("Invite"),
-                                  onPressed: userAlreadySelected(snapshot.data[index]) ? null : () {
-                                    widget.callback(snapshot.data[index]);
-                                    Navigator.of(context).pop();
-                                  }
-                                )
-                              ],
-                            ),
-                          );
-                      })
-                    : Center(child: Text("No Friends to show"));
-                } else {
-                  return Center(child: CircularProgressIndicator());
+            child: Query(
+              options: QueryOptions(
+                  document: gql(GET_USER_FRIENDS),
+                  variables: {
+                    "nodeId": globals.user.graphqlID()
+                  },
+                  pollInterval: Duration(seconds: 10),
+              ),
+              builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                if (result.hasException) {
+                    return Text(result.exception.toString());
                 }
+
+                if (result.isLoading) {
+                  return Text('Loading');
+                }
+
+                List users = result.data!["node"]["friends"]["edges"];
+
+                return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    User user = User.fromJSON(users[index]["node"]);
+
+                    return Card(
+                      child: Column(
+                        children: <Widget>[
+                          ListTile(
+                            title: Text(user.fullName()),
+                            trailing: MaterialButton(
+                              child: Text("Invite"),
+                              onPressed: userAlreadySelected(user) ? null : () {
+                                widget.callback(user);
+                                Navigator.of(context).pop();
+                              }
+                            )
+                          )
+                        ],
+                      ),
+                    );
+                });
               },
-            ),
+            )
           ),
         ],
       )

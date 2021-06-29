@@ -7,54 +7,78 @@ Authors: Jasper Robison
 */
 
 import 'dart:convert';
+import 'club.dart';
+import 'req.dart';
 
 Codec stringToBase64 = utf8.fuse(base64);
 
 class User {
-  String id;
-  String firstName;
-  String lastName;
-  String email;
-  String clubId;
-  String gender;
-  String birthDate;
-  int handicap;
-  int totalGames;
-  int avgScore;
-  String created;
-  String updated;
+  late String id;
+  late Club club;
+  late List<User> friends;
+  late List<Req> requests;
+  late String firstName;
+  late String lastName;
+  late String email;
+  late String gender;
+  late String birthDate;
+  late int handicap;
+  late int totalGames;
+  late int avgScore;
 
-  User({
-    required this.id, 
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.clubId,
-    required this.gender,
-    required this.birthDate,
-    required this.handicap,
-    required this.totalGames,
-    required this.avgScore,
-    required this.created,
-    required this.updated
-    });
+  User(String id, String firstName, String lastName, String email, String gender, String birthDate, int handicap, int totalGames, int avgScore, List<User> friends, List<Req> requests) {
+    this.id = id;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.gender = gender;
+    this.birthDate = birthDate;
+    this.handicap = handicap;
+    this.totalGames = totalGames;
+    this.avgScore = avgScore;
+    this.friends = friends;
+    this.requests = requests;
+  }
 
   factory User.fromJSON(dynamic data) {
-    return User(
+
+    List<User> friends = [];
+    if (data["friends"] != null) {
+      friends = new List<User>.from(data["friends"]["edges"].map((item) {
+        return User.fromJSON(item["node"]);
+      }));
+    }
+
+    List<Req> requests = [];
+    if (data["requests"] != null) {
+      requests = new List<Req>.from(data["requests"]["edges"].map((item) {
+        return Req.fromJSON(item["node"]);
+      }));
+    }
+
+    User user = User(
       // Graphene appends class name then Base64 encodes any ID.
-      id: data["id"],
-      firstName: data["first_name"],
-      lastName: data["last_name"],
-      email: data["email"],
-      clubId: data["club_id"],
-      gender: data["gender"],
-      birthDate: data["birth_date"],
-      handicap: data["handicap"],
-      totalGames: data["total_games"],
-      avgScore: data["avg_score"],
-      created: data["created"],
-      updated: data["updated"],
+      stringToBase64.decode(data["id"]).toString().split(':')[1],
+      data["firstName"],
+      data["lastName"],
+      data["email"],
+      data["gender"],
+      data["birthDate"],
+      data["handicap"],
+      data["totalGames"],
+      data["avgScore"],
+      friends,
+      requests
     );
+
+    if (data["club"] != null) {
+      user.club = Club.fromJSON(data["club"]);
+    }
+    return user;
+  }
+
+  String graphqlID() {
+    return stringToBase64.encode("User:" + this.id).toString();
   }
 
   String fullName() {

@@ -4,15 +4,74 @@ when home page is the active state
 */
 import 're-usable/arrow_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'classes/globals.dart' as globals;
 import 'classes/user.dart';
 import 'classes/game.dart';
+import 'classes/club.dart';
 
 import 'utils.dart';
 import 'common.dart';
 import 'invite_page.dart';
 import 'game_page.dart';
+
+Future<dynamic> createGame(Club club, int numHoles, List<User> players) async {
+
+  const CREATE_GAME = """
+  mutation Mutations(\$createGameClubId: String, \$createGameNumHoles: Int, \$createGamePlayerIds: [String], \$createGameActive: Boolean) {
+    createGame(clubId: \$createGameClubId, numHoles: \$createGameNumHoles, playerIds: \$createGamePlayerIds, active: \$createGameActive) {
+      ok
+      game {
+        id
+        active
+        numHoles
+        holes {
+          edges {
+            node {
+              id
+              holeNum
+              par
+              scores {
+                edges {
+                  node {
+                    id
+                    value
+                    player {
+                      id
+                      firstName
+                      lastName
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  """;
+
+  List playerIds = new List<String>.from(players.map((item) {
+    return item.id;
+  }));
+
+  MutationOptions mutationOptions = MutationOptions(
+    document: gql(CREATE_GAME),
+    variables: {
+      "createGameClubId": club.id,
+      "createGameNumHoles": numHoles,
+      "createGamePlayerIds": playerIds,
+      "createGameActive": true
+    }
+  );
+  dynamic result = await globals.client.mutate(mutationOptions);
+
+  print(result.exception.toString());
+  print(result.data);
+  return result.data["createGame"];
+}
 
 class CreateGamePage extends StatefulWidget {
 
@@ -95,7 +154,7 @@ class CreateGameState extends State<CreateGamePage> {
                   MaterialPageRoute(
                     builder: (context) => new InvitePage(selected: players, callback: invitePlayerCallback),
                   )
-                );
+                ).then((_) => setState(() {}));
               },
             ),
             SizedBox(width: 20,),
@@ -162,19 +221,16 @@ class CreateGameState extends State<CreateGamePage> {
                   // minWidth: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                   onPressed: () async {
-                    Future<String> gameIdFuture = Utils.postGame(globals.user.clubId, holeNum, players);
-                    gameIdFuture.then((gameId) {
+                    dynamic gameData = await createGame(globals.user.club, holeNum, players);
 
-                      Future<Game> game_future = Utils.getGame(gameId);
-                      game_future.then((newGame) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => new GamePage(game: newGame),
-                          )
-                        );
-                      });
-                    });
+                    Game newGame = Game.fromJSON(gameData["game"]);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => new GamePage(game: newGame),
+                      )
+                    ).then((_) => setState(() {}));
                   },
                   child: Text("Start Game",
                     textAlign: TextAlign.center,

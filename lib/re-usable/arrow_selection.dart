@@ -11,18 +11,18 @@ class ArrowSelection extends StatefulWidget {
   ArrowSelection({required this.title, required this.items, required this.itemIndex, required this.callback});
 
   @override
-  ArrowSelectionState createState() => ArrowSelectionState();
+  ArrowSelectionState createState() => ArrowSelectionState(this.title, this.items, this.itemIndex);
 
 }
 
 class ArrowSelectionState extends State<ArrowSelection> {
 
-  // String title;
-  // List<Object> items;
+  String title;
+  List<Object> items;
 
-  // int itemIndex;
+  int itemIndex;
 
-  // ArrowSelectionState(this.title, this.items, this.itemIndex);
+  ArrowSelectionState(this.title, this.items, this.itemIndex);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class ArrowSelectionState extends State<ArrowSelection> {
         SizedBox(
           width: 10.0,
         ),
-        Text(widget.title),
+        Text(title),
         SizedBox(
           width: 10.0,
         ),
@@ -42,16 +42,16 @@ class ArrowSelectionState extends State<ArrowSelection> {
           minWidth: 5,
           child: Icon(Icons.arrow_left),
           onPressed: () {
-            if (widget.itemIndex > 0) {
+            if (itemIndex > 0) {
               setState(() {
-                widget.itemIndex -= 1;
+                itemIndex -= 1;
               });
-              widget.callback(widget.items.elementAt(widget.itemIndex));
+              widget.callback(items.elementAt(itemIndex));
             }
           },
         ),
         MaterialButton(
-          child: Text(widget.items.elementAt(widget.itemIndex).toString()),
+          child: Text(items.elementAt(itemIndex).toString()),
           onPressed: () {
             print("dummy button pressed");
           }
@@ -60,11 +60,11 @@ class ArrowSelectionState extends State<ArrowSelection> {
           minWidth: 5,
           child: Icon(Icons.arrow_right),
           onPressed: () {
-            if (widget.itemIndex < (widget.items.length-1)) {
+            if (itemIndex < (items.length-1)) {
               setState(() {
-                widget.itemIndex += 1;
+                itemIndex += 1;
               });
-              widget.callback(widget.items.elementAt(widget.itemIndex));
+              widget.callback(items.elementAt(itemIndex));
             }
           },
         ),
