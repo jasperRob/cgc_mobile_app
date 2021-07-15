@@ -14,107 +14,17 @@ import 'classes/user.dart';
 import 'classes/req.dart';
 import 'utils.dart';
 
+import 'classes/queries.dart';
+import 'classes/mutations.dart';
+
 import 'user_page.dart';
 
-const GET_USERS_BY_KEYWORD = '''
-query Query(\$usersByKeywordKeyword: String!) {
-  usersByKeyword(keyword: \$usersByKeywordKeyword) {
-    id
-    firstName
-    lastName
-    club {
-      id
-      name
-    }
-  }
-}
-''';
-
-const GET_USER_FRIENDS = '''
-query Query(\$nodeId: ID!) {
-  node(id: \$nodeId) {
-    ... on User {
-      friends {
-        edges {
-          node {
-            id
-            firstName
-            lastName
-          }
-        }
-      }
-    }
-  }
-}
-''';
-
-Future<dynamic> fetchUserFriends(User user) async {
-
-  const GET_USER_FRIENDS = """
-    query Query(\$nodeId: ID!) {
-      node(id: \$nodeId) {
-        ... on User {
-          friends {
-            edges {
-              node {
-                id
-                firstName
-                lastName
-              }
-            }
-          }
-        }
-      }
-    }
-  """;
-
-
-  QueryOptions queryOptions = QueryOptions(
-    document: gql(GET_USER_FRIENDS),
-    variables:{
-      "nodeId": user.graphqlID(),
-    }
-  );
-
-  dynamic result = await globals.client.query(queryOptions);
-
-  return result.data["node"]["friends"];
-}
 
 Future<dynamic> fetchFriendsAndRequests(User user) async {
 
-  const GET_USER_FRIENDS = """
-    query Query(\$nodeId: ID!) {
-      node(id: \$nodeId) {
-        ... on User {
-          friends {
-            edges {
-              node {
-                id
-              }
-            }
-          }
-          requests {
-            edges {
-              node {
-                id
-                source {
-                  id
-                }
-                target {
-                  id
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  """;
-
 
   QueryOptions queryOptions = QueryOptions(
-    document: gql(GET_USER_FRIENDS),
+    document: gql(Queries.GET_USER_FRIENDS),
     variables:{
       "nodeId": user.graphqlID(),
     }
@@ -127,24 +37,8 @@ Future<dynamic> fetchFriendsAndRequests(User user) async {
 
 Future<void> createRequest(User source, User target) async {
 
-  const CREATE_REQUEST = """
-    mutation Mutations(\$requestFriendSourceId: String!, \$requestFriendTargetId: String!) {
-      requestFriend(sourceId: \$requestFriendSourceId, targetId: \$requestFriendTargetId) {
-        request {
-          id
-          source {
-            id
-          }
-          target {
-            id
-          }
-        }
-      }
-    }
-  """;
-
   MutationOptions mutationOptions = MutationOptions(
-    document: gql(CREATE_REQUEST),
+    document: gql(Mutations.CREATE_REQUEST),
     variables: {
       "requestFriendSourceId": source.id,
       "requestFriendTargetId": target.id
@@ -156,16 +50,8 @@ Future<void> createRequest(User source, User target) async {
 
 Future<void> acceptRequest(Req request) async {
 
-  const ACCEPT_REQUEST = """
-    mutation Mutations(\$acceptRequestRequestId: String!) {
-      acceptRequest(requestId: \$acceptRequestRequestId) {
-        ok
-      }
-    }
-  """;
-
   MutationOptions mutationOptions = MutationOptions(
-    document: gql(ACCEPT_REQUEST),
+    document: gql(Mutations.ACCEPT_REQUEST),
     variables: {
       "acceptRequestRequestId": request.id,
     }
@@ -287,13 +173,13 @@ class FriendsPageState extends State<FriendsPage> {
           Container(
             child: Query(
               options: widget.searchActive ? QueryOptions(
-                  document: gql(GET_USERS_BY_KEYWORD),
+                  document: gql(Queries.GET_USERS_BY_KEYWORD),
                   variables: {
                     "usersByKeywordKeyword": widget.keyword
                   },
                   pollInterval: Duration(seconds: 10),
               ) : QueryOptions(
-                  document: gql(GET_USER_FRIENDS),
+                  document: gql(Queries.GET_USER_FRIENDS),
                   variables: {
                     "nodeId": globals.user.graphqlID()
                   },

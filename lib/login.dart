@@ -19,6 +19,30 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
+
+final FlutterAppAuth appAuth = FlutterAppAuth();
+
+Future<void> loginAction() async {
+
+  try {
+    String AUTH0_DOMAIN = globals.AUTH0_DOMAIN;
+    final AuthorizationTokenResponse? result = await appAuth.authorizeAndExchangeCode(
+      AuthorizationTokenRequest(
+        globals.AUTH0_CLIENT_ID,
+        globals.AUTH0_REDIRECT_URI,
+        issuer: 'https://$AUTH0_DOMAIN',
+        scopes: <String>['openid', 'profile', 'offline_access'],
+        // promptValues: ['login']
+      ),
+    );
+
+    globals.token = result!.accessToken;
+
+  } on Exception catch (e, s) {
+    print('login error: $e - stack: $s');
+  }
+}
 
 Future<dynamic> login(String userEmail, String password) async {
 
@@ -37,6 +61,7 @@ Future<dynamic> login(String userEmail, String password) async {
       club {
         id
         name
+        windDirection
       }
       friends {
         edges {
@@ -60,94 +85,111 @@ Future<dynamic> login(String userEmail, String password) async {
 
 class Login extends StatelessWidget {
 
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = new TextEditingController();
-    final emailField = TextField(
-      controller: emailController,
-      obscureText: false,
-      style: style,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Email",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+    final emailField = Container(
+      margin: EdgeInsets.symmetric(horizontal: 40, vertical: 0),
+      child: TextField(
+        controller: emailController,
+        obscureText: false,
+        style: globals.style,
+        decoration: InputDecoration(
+          contentPadding: globals.padding,
+          hintText: "Email",
+          border: OutlineInputBorder(borderRadius: globals.radius),
+        ),
       ),
     );
     TextEditingController passwordController = new TextEditingController();
-    final passwordField = TextField(
-      controller: passwordController,
-      obscureText: true,
-      style: style,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        hintText: "Password",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
+    final passwordField = Container(
+      margin: EdgeInsets.symmetric(horizontal: 40, vertical: 0),
+      child: TextField(
+        controller: emailController,
+        obscureText: true,
+        style: globals.style,
+        decoration: InputDecoration(
+          contentPadding: globals.padding,
+          hintText: "Password",
+          border: OutlineInputBorder(borderRadius: globals.radius),
+        ),
       ),
     );
-    final loginButton = Material(
-      elevation: 5.0,
-      borderRadius: BorderRadius.circular(30),
-      color: Colors.green[300],
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () async {
-          // Send Login request
-          print("LOGGIN IN");
-          Future<dynamic> data = login("test.person@test.com", "test");
-          data.then((body){
-            print("HERE");
-            print(body);
-            globals.user = User.fromJSON(body);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Common(),
-              )
-            );
-          });
-        },
-        child: Text("Login",
-          textAlign: TextAlign.center,
-          style: style.copyWith(
-            color: Colors.white, fontWeight: FontWeight.bold
+
+    final loginButton = Container(
+      margin: EdgeInsets.symmetric(horizontal: 40, vertical: 0),
+      child: Material(
+        elevation: 5.0,
+        borderRadius: globals.radius,
+        color: globals.primaryDarkColor,
+        child: MaterialButton(
+          minWidth: MediaQuery.of(context).size.width,
+          padding: globals.padding,
+          onPressed: () async {
+            // Send Login request
+            print("LOGGIN IN");
+            Future<dynamic> data = login("test.person@test.com", "test");
+            data.then((body){
+              print("HERE");
+              print(body);
+              globals.user = User.fromJSON(body);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Common(),
+                )
+              );
+            });
+          },
+          child: Text("Login",
+            textAlign: TextAlign.center,
+            style: globals.style.copyWith(
+              color: Colors.white, fontWeight: FontWeight.bold
+            ),
           ),
         ),
       ),
     );
     
-    final signUpButton = MaterialButton(
-      child: Text("Sign Up?",
-        style: style.copyWith(fontSize: 14.0),
-        
-      ),
-      onPressed: () async {
-        // Navigator.of(context).pushNamed("/signup");
-        print("HERE");
-      },
-    );
-
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: MaterialButton(
+          child: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: Center(
         child: Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(36.0),
+        child: SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                SizedBox(
-                  height: 100.0,
-                  child: Text("Please Login", style: style,)
+                Center(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 70, vertical: 0),
+                    padding: EdgeInsets.fromLTRB(0, 120, 0, 0),
+                    alignment: Alignment(0.0, -0.5),
+                    child: Row(
+                      children: <Widget>[
+                        Image.asset(
+                          'assets/images/marnong_estate_header_logo.png',
+                          alignment: Alignment.center,
+                          width: MediaQuery.of(context).size.width - 140,
+                          //height: MediaQuery.of(context).size.height,
+                        )
+                      ],
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: 45.0,
                 ),
                 emailField,
                 SizedBox(
-                  height: 25.0,
+                  height: 10.0,
                 ),
                 passwordField,
                 SizedBox(
@@ -157,7 +199,6 @@ class Login extends StatelessWidget {
                 SizedBox(
                   height: 45.0,
                 ),
-                signUpButton,
               ],
             )
           ),

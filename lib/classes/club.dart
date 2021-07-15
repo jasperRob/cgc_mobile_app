@@ -21,8 +21,9 @@ class Club {
   late String state;
   late String country;
   late String zipCode;
+  late String windDirection;
 
-  Club(String id, String name, String email, String phone, String address, String city, String state, String country, String zipCode) {
+  Club(String id, String name, String email, String phone, String address, String city, String state, String country, String zipCode, String windDirection) {
     this.id = id;
     this.name = name;
     this.email = email;
@@ -32,6 +33,7 @@ class Club {
     this.state = state;
     this.country = country;
     this.zipCode = zipCode;
+    this.windDirection = windDirection;
     }
 
   factory Club.fromJSON(dynamic data) {
@@ -45,7 +47,8 @@ class Club {
       data["city"],
       data["state"],
       data["country"],
-      data["zipCode"]
+      data["zipCode"],
+      data["windDirection"]
     );
   }
 

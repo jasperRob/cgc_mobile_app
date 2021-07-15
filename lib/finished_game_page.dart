@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'classes/user.dart';
 import 'classes/game.dart';
@@ -6,10 +7,12 @@ import 'classes/hole.dart';
 import 'classes/score.dart';
 import 're-usable/arrow_selection.dart';
 import 'classes/globals.dart' as globals;
+import 'classes/queries.dart';
 // import 'hole_view.dart';
 import 'hole_page.dart';
 
 import 'utils.dart';
+
 
 class FinishedGamePage extends StatefulWidget {
 
@@ -17,51 +20,86 @@ class FinishedGamePage extends StatefulWidget {
   FinishedGamePage({required this.game});
 
   @override
-  FinishedGamePageState createState() => FinishedGamePageState();
+  FinishedGamePageState createState() => FinishedGamePageState(this.game);
 }
 
+
 class FinishedGamePageState extends State<FinishedGamePage> {
+
+  Game game;
+  FinishedGamePageState(this.game);
 
   @override
   void initState() {
     super.initState();
   }
 
+  Widget tableCellOf(Widget widget) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(child: widget)
+      );
+  }
+
 
   List<TableRow> getScoreTableRows(Game game) {
     print("GETTING ROWS");
 
-    List<Widget> headerRowWidgets = [Center(child: Text("Hole #"))];
+    List<Widget> headerRowWidgets = [
+      tableCellOf(Text("Hole #", style: TextStyle(fontWeight: FontWeight.bold))),
+      tableCellOf(Text("Par", style: TextStyle(fontWeight: FontWeight.bold))),
+      tableCellOf(Text("Distance", style: TextStyle(fontWeight: FontWeight.bold))),
+    ];
     for (User player in game.players) {
-      headerRowWidgets.add(Center(child: Text(player.fullName())));
+      headerRowWidgets.add(Center(child: Text(player.fullName(), style: TextStyle(fontWeight: FontWeight.bold))));
     }
     List<TableRow> rows = [TableRow(children: headerRowWidgets)];
 
     // // Sort the holes by hole num
     // holes.sort((a, b) => a.holeNum.compareTo(b.holeNum));
+    int totalDistance = 0;
+    List<int> totals = List<int>.generate(game.players.length, (int index) => 0);
 
     for (Hole hole in game.holes) {
-      print("holeeeeeee");
+
+      totalDistance += hole.distance;
 
       List<Widget> currentRow = [];
-      currentRow.add(Center(child: Text("Hole " + hole.holeNum.toString())));
+      currentRow.add(tableCellOf(Text("Hole " + hole.holeNum.toString())));
+      currentRow.add(tableCellOf(Text(Utils.orNAInt(hole.par))));
+      currentRow.add(tableCellOf(Text(Utils.orNAInt(hole.distance))));
 
+      int playerCount = 0;
       for (User player in game.players) {
         print(player.fullName());
         String playerScore = "N/A";
         for (Score score in hole.scores) {
-          // NOTE: THIS IS WRONG
           if (score.player.id == player.id) {
-            print("ADDING SOMETHING TO ROWS");
             playerScore = score.value.toString();
+            totals[playerCount] += score.value;
           };
         }
-        currentRow.add(Center(child: Text(playerScore)));
+        currentRow.add(tableCellOf(Text(playerScore)));
+        playerCount += 1;
       }
       rows.add(TableRow(children: currentRow));
     }
+
+    List<Widget> totalScoreWidgets = [
+      tableCellOf(Text("Total:", style: TextStyle(fontWeight: FontWeight.bold))),
+      tableCellOf(Text("")),
+      tableCellOf(Text(totalDistance.toString())),
+    ];
+
+    for (int total in totals) {
+      totalScoreWidgets.add(tableCellOf(Text(total.toString())));
+    }
+
+    rows.add(TableRow(children: totalScoreWidgets));
+
     return rows;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -81,11 +119,49 @@ class FinishedGamePageState extends State<FinishedGamePage> {
         children: [
           SizedBox(height: 80),
           Container(
-            child: Table(
-              border: TableBorder.all(),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: getScoreTableRows(widget.game),
-            ),
+            child: Query(
+              options: QueryOptions(
+                  document: gql(Queries.GET_GAME),
+                  variables: {
+                    "nodeId": game.graphqlID()
+                  },
+                  pollInterval: Duration(seconds: 10),
+              ),
+              builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                if (result.hasException) {
+                    return Text(result.exception.toString());
+                }
+
+                if (result.isLoading) {
+                  return Text('Loading');
+                }
+
+                print(result.data!["node"]);
+                Game game = Game.fromJSON(result.data!["node"]);
+
+                return Table(
+                  border: TableBorder.all(),
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  children: getScoreTableRows(game),
+                );
+
+                // return Column(
+                //   children: <Widget>[
+                //     Table(
+                //       border: TableBorder.all(),
+                //       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                //       children: getScoreTableRows(game),
+                //     ),
+                //     SizedBox(height: 10),
+                //     Table(
+                //       border: TableBorder.all(),
+                //       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                //       children: getScoreTotalRow(game),
+                //     ),
+                //   ]
+                // );
+              },
+            )
           ),
         ]
       )

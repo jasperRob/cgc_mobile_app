@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 import 'classes/user.dart';
 import 'classes/game.dart';
@@ -8,6 +10,8 @@ import 'classes/score.dart';
 import 're-usable/arrow_selection.dart';
 import 'classes/globals.dart' as globals;
 import 'utils.dart';
+
+import 'location_utils.dart';
 
 Future<dynamic> submitScore(Hole hole, User player, int value) async {
 
@@ -56,8 +60,17 @@ class HolePage extends StatefulWidget {
 class HolePageState extends State<HolePage> {
 
   int score;
+  // LocationData locationData = globals.locationData;
 
   HolePageState(this.score);
+
+  @override
+  void initState() {
+    super.initState();
+    // LocationUtils.checkLocationPermissions();
+    // print("LAT:");
+    // print(globals.locationData.latitude);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,19 +105,42 @@ class HolePageState extends State<HolePage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text("Par  " + widget.hole.par.toString(),
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
                 ],
+              ),
+              SizedBox(height: 20,),
+              Center(
+                child: Row(children: [
+                  Text("Distance: ",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  )),
+                  SizedBox(width: 10),
+                  Text(Utils.orNAInt(widget.hole.distance) + "m"),
+                ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center
+                )
               ),
               SizedBox(height: 40,),
               ConstrainedBox(
                 constraints: new BoxConstraints(
-                  minHeight: 200,
-                  minWidth: MediaQuery.of(context).size.width*0.75,
+                  maxHeight: 350,
                 ),
-                child: new DecoratedBox(
-                  child: Text("MAP"),
-                  decoration: new BoxDecoration(color: Colors.grey),
+                child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                        -37.734039,
+                        145.230148
+                      ),
+                      zoom: 18,
+                    ),
+                    mapType: MapType.hybrid,
+                    myLocationEnabled: true
                 ),
               ),
               SizedBox(height: 40,),
@@ -117,14 +153,17 @@ class HolePageState extends State<HolePage> {
               SizedBox(height: 40,),
               Material(
                 elevation: 5.0,
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.green[300],
+                borderRadius: globals.radius,
+                color: globals.primaryDarkColor,
                 child: MaterialButton(
                   // minWidth: MediaQuery.of(context).size.width,
-                  child: (widget.game.numHoles == widget.hole.holeNum) ? Text("Finish") : Text("Submit Score",
+                  child: Text((widget.game.numHoles == widget.hole.holeNum) ? "Finish" : "Submit Score",
                     textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: globals.primaryLightColor,
+                    )
                   ),
-                  padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  padding: globals.padding,
                   onPressed: () async {
                     dynamic data = await submitScore(widget.hole, globals.user, score);
                     Score newScore = Score.fromJSON(data["score"]);

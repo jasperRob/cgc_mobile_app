@@ -3,6 +3,7 @@ The contents of the common page body
 when home page is the active state
 */
 import 'package:flutter/material.dart';
+import 'classes/globals.dart' as globals;
 
 class SettingsPage extends StatelessWidget{
 
@@ -10,7 +11,7 @@ class SettingsPage extends StatelessWidget{
   
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primaryColor: Colors.green[300]),
+      theme: ThemeData(primaryColor: globals.primaryDarkColor),
       home: Scaffold(
         appBar: AppBar(
           leading: IconButton(

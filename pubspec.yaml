@@ -31,6 +31,9 @@ dependencies:
   intl: ^0.17.0
   http: any
   graphql_flutter: 5.0.0
+  google_maps_flutter: ^2.0.6
+  location: ^4.3.0
+  flutter_appauth: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:
@@ -48,9 +51,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/marnong_estate_the_view.jpg
+    - assets/images/marnong_estate_header_logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

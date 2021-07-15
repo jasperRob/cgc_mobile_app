@@ -6,55 +6,11 @@ import 'classes/hole.dart';
 import 'classes/score.dart';
 import 're-usable/arrow_selection.dart';
 import 'classes/globals.dart' as globals;
+import 'classes/queries.dart';
 // import 'hole_view.dart';
 import 'hole_page.dart';
 
 import 'utils.dart';
-
-const GET_GAME = """
-  query Query(\$nodeId: ID!) {
-    node(id: \$nodeId) {
-      ... on Game {
-        id
-        club {
-          id
-          name
-          country
-        }
-        numHoles
-        holes {
-          edges {
-            node {
-              id
-              holeNum
-              par
-              scores {
-                edges {
-                  node {
-                    id
-                    value
-                    player {
-                      id
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        players {
-          edges {
-            node {
-              id
-              firstName
-              lastName
-            }
-          }
-        }
-      }
-    }
-  }
-""";
 
 Future<dynamic> finishGame(Game game) async {
 
@@ -152,7 +108,7 @@ class GamePageState extends State<GamePage> {
             Container(
               child: Query(
                 options: QueryOptions(
-                    document: gql(GET_GAME),
+                    document: gql(Queries.GET_GAME),
                     variables: {
                       "nodeId": game.graphqlID()
                     },

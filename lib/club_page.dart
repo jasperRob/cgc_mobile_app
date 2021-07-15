@@ -7,27 +7,12 @@ import 'classes/score.dart';
 import 'classes/club.dart';
 import 're-usable/arrow_selection.dart';
 import 'classes/globals.dart' as globals;
+import 'classes/queries.dart';
 // import 'hole_view.dart';
 import 'hole_page.dart';
 
 import 'utils.dart';
 
-const GET_CLUB = """
-  query Query(\$nodeId: ID!) {
-    node(id: \$nodeId) {
-      ... on Club {
-        id
-        email
-        phone
-        address
-        city
-        state
-        country
-        zipCode
-      }
-    }
-  }
-""";
 
 class ClubPage extends StatefulWidget {
 
@@ -64,7 +49,7 @@ class ClubPageState extends State<ClubPage> {
       ),
       body: Query(
         options: QueryOptions(
-            document: gql(GET_CLUB),
+            document: gql(Queries.GET_CLUB),
             variables: {
               "nodeId": club.graphqlID()
             },
@@ -79,15 +64,7 @@ class ClubPageState extends State<ClubPage> {
             return Text('Loading');
           }
 
-          print(result.data!["node"]);
           Club club = Club.fromJSON(result.data!["node"]);
-          print(club.email);
-          print(club.phone);
-          print(club.address);
-          print(club.city);
-          print(club.state);
-          print(club.country);
-          print(club.zipCode);
 
           return Column(
             children: <Widget> [
@@ -99,7 +76,7 @@ class ClubPageState extends State<ClubPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(club.email),
+                  Text(Utils.orNA(club.email)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center
@@ -113,7 +90,7 @@ class ClubPageState extends State<ClubPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(club.phone),
+                  Text(Utils.orNA(club.phone)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center
@@ -127,7 +104,7 @@ class ClubPageState extends State<ClubPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(club.address),
+                  Text(Utils.orNA(club.address)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center
@@ -141,7 +118,7 @@ class ClubPageState extends State<ClubPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(club.city),
+                  Text(Utils.orNA(club.city)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center
@@ -155,7 +132,7 @@ class ClubPageState extends State<ClubPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(club.state),
+                  Text(Utils.orNA(club.state)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center
@@ -169,7 +146,7 @@ class ClubPageState extends State<ClubPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(club.country),
+                  Text(Utils.orNA(club.country)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center
@@ -183,7 +160,21 @@ class ClubPageState extends State<ClubPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(club.zipCode),
+                  Text(Utils.orNA(club.zipCode)),
+                ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center
+                )
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: Row(children: [
+                  Text("Current Wind Direction: ",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  )),
+                  SizedBox(width: 20),
+                  Text(Utils.orNA(club.windDirection)),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center

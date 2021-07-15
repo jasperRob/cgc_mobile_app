@@ -9,56 +9,15 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import 'package:location/location.dart';
+
 import 'classes/globals.dart' as globals;
+import 'classes/queries.dart';
 import 'classes/game.dart';
 import 'game_page.dart';
 import 'finished_game_page.dart';
 import 'utils.dart';
 
-const GET_ALL_GAMES = '''
-query Query(\$allGamesActive: Boolean) {
-  allGames(active: \$allGamesActive) {
-    edges {
-      node {
-        id
-        numHoles
-        active
-        holes {
-          edges {
-            node {
-              id
-              holeNum
-              par
-              scores {
-                edges {
-                  node {
-                    id
-                    value
-                    player {
-                      id
-                      firstName
-                      lastName
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        players {
-          edges {
-            node {
-              id
-              firstName
-              lastName
-            }
-          }
-        }
-      }
-    }
-  }
-}
-''';
 
 class HomePage extends StatefulWidget {
 
@@ -69,10 +28,12 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
 
+
   @override
   void initState() {
     super.initState();
   }
+
 
   String getSimpleDate(DateTime dt) {
     var dateFormat = DateFormat("yy/MM/dd");
@@ -100,9 +61,9 @@ class HomePageState extends State<HomePage> {
             Container(
               child: Query(
                 options: QueryOptions(
-                    document: gql(GET_ALL_GAMES),
+                    document: gql(Queries.GET_ALL_GAMES),
                     variables: {
-                      "allGamesActive": true
+                      "allGamesEnded": true
                     },
                     pollInterval: Duration(seconds: 10),
                 ),
@@ -160,9 +121,9 @@ class HomePageState extends State<HomePage> {
             Container(
               child: Query(
                 options: QueryOptions(
-                    document: gql(GET_ALL_GAMES),
+                    document: gql(Queries.GET_ALL_GAMES),
                     variables: {
-                      "allGamesActive": false
+                      "allGamesEnded": false
                     },
                     pollInterval: Duration(seconds: 10),
                 ),
