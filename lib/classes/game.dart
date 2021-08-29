@@ -1,32 +1,15 @@
-/*
-Used to store data regarding games
+import 'export.dart';
 
-Authors: Jasper Robison
-*/
-
-import 'dart:convert';
-
-import 'club.dart';
-import 'user.dart';
-import 'hole.dart';
-import 'score.dart';
-
-Codec stringToBase64 = utf8.fuse(base64);
-
-class Game {
-  late String id;
+class Game extends CGCObject {
   late Club club;
   late int numHoles;
   late List<Hole> holes;
   late List<User> players;
-  late bool active;
 
-  Game(String id, int numHoles, List<Hole> holes, List<User> players, bool active) {
-    this.id = id;
+  Game(String id, bool active, int numHoles, List<Hole> holes, List<User> players) : super(id, active) {
     this.numHoles = numHoles;
     this.holes = holes;
     this.players = players;
-    this.active = active;
   }
 
   factory Game.fromJSON(dynamic data) {
@@ -54,11 +37,11 @@ class Game {
     }
     Game game = Game(
       // Graphene appends class name then Base64 encodes any ID.
-      stringToBase64.decode(data["id"]).toString().split(':')[1], 
+      data['id'],
+      data["active"],
       data["numHoles"],
       holes,
-      players,
-      data["active"]
+      players
     );
     if (data["club"] != null) {
       game.club = Club.fromJSON(data["club"]);
@@ -66,13 +49,6 @@ class Game {
     return game;
   }
 
-  String graphqlID() {
-    return stringToBase64.encode("Game:" + this.id).toString();
-  }
-
-  String getCreated() {
-    return this.id;
-  }
 }
 
 

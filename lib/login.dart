@@ -1,25 +1,18 @@
-/* 
-Login Page Widget
-
-Provides a Login UI and handles frontend
-login logic. Sends login request to the 
-backend using GraphQL.
-
-Authors: Jasper Robison
-*/
-
 import 'package:flutter/material.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'main.dart';
-import 'common.dart';
-import 'classes/globals.dart' as globals;
-import 'classes/user.dart';
-// import 'utils.dart';
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
+
+import 'classes/export.dart';
+import 'components/export.dart';
+import 'utils/export.dart';
+import 'user/export.dart';
+import 'game/export.dart';
+
+import 'globals.dart' as globals;
+
+import 'common.dart';
 
 final FlutterAppAuth appAuth = FlutterAppAuth();
 
@@ -46,36 +39,11 @@ Future<void> loginAction() async {
 
 Future<dynamic> login(String userEmail, String password) async {
 
-  const GET_USER_BY_EMAIL = """
-  query Query {
-    userByEmail(email: "test.person@test.com") {
-      id
-      firstName
-      lastName
-      email
-      birthDate
-      gender
-      handicap
-      totalGames
-      admin
-      club {
-        id
-        name
-        windDirection
-      }
-      friends {
-        edges {
-          node {
-            id
-          }
-        }
-      }
-    }
-  }""";
-
-
   QueryOptions queryOptions = QueryOptions(
-    document: gql(GET_USER_BY_EMAIL)
+    document: gql(Queries.GET_USER_BY_EMAIL),
+    variables: {
+      "email": "test.person@test.com",
+    },
   );
 
   dynamic result = await globals.client.query(queryOptions);

@@ -1,8 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:async';
-import 'dart:convert';
-
 class Queries {
 
   static const GET_CLUB = """
@@ -36,6 +31,34 @@ class Queries {
       }
     }
   ''';
+
+  static const GET_USER_BY_EMAIL = """
+  query Query(\$userByEmailEmail: String!) {
+    userByEmail(email: \$userByEmailEmail) {
+      id
+      firstName
+      lastName
+      email
+      birthDate
+      gender
+      handicap
+      totalGames
+      admin
+      club {
+        id
+        name
+        windDirection
+      }
+      friends {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }""";
+
 
   static const GET_USER_FRIENDS = '''
     query Query(\$nodeId: ID!) {

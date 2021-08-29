@@ -1,18 +1,7 @@
-/* 
-Game Class
-
-Used to store data regarding games
-
-Authors: Jasper Robison
-*/
-
 import 'dart:convert';
-import 'score.dart';
+import 'export.dart';
 
-Codec stringToBase64 = utf8.fuse(base64);
-
-class Hole {
-  late String id;
+class Hole extends CGCObject {
   late int holeNum;
   late int par;
   late int distance;
@@ -20,8 +9,7 @@ class Hole {
   late Map<String, String> finish;
   late List<Score> scores;
 
-  Hole(String id, int holeNum, int par, int distance, Map<String, String> start, Map<String, String> finish, List<Score> scores) {
-    this.id = id;
+  Hole(String id, bool active, int holeNum, int par, int distance, Map<String, String> start, Map<String, String> finish, List<Score> scores) : super(id, active) {
     this.holeNum = holeNum;
     this.par = par;
     this.distance = distance;
@@ -53,7 +41,8 @@ class Hole {
     }
     
     return Hole(
-      stringToBase64.decode(data["id"]).toString().split(':')[1],
+      data['id'],
+      true,
       data["holeNum"],
       data["par"],
       data["distance"],

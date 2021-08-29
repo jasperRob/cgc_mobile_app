@@ -1,18 +1,15 @@
-import 'package:cgc_mobile_app/home_page.dart';
-import 'package:cgc_mobile_app/friends_page.dart';
-import 'package:cgc_mobile_app/create_game_page.dart';
-import 'package:cgc_mobile_app/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:location/location.dart';
 import 'main.dart';
 
-import 'club_page.dart';
+import 'classes/export.dart';
+import 'components/export.dart';
+import 'utils/export.dart';
+import 'user/export.dart';
+import 'game/export.dart';
 
-import 'location_utils.dart';
-
-import 'classes/globals.dart' as globals;
-
+import 'globals.dart' as globals;
 
 class Common extends StatefulWidget {
 

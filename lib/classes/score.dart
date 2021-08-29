@@ -1,29 +1,17 @@
-/* 
-Game Class
+import 'export.dart';
 
-Used to store data regarding games
-
-Authors: Jasper Robison
-*/
-
-import 'dart:convert';
-import 'user.dart';
-
-Codec stringToBase64 = utf8.fuse(base64);
-
-class Score {
-  late String id;
+class Score extends CGCObject {
   late User player;
   late int value;
 
-  Score(String id, int value) {
-    this.id = id;
+  Score(String id, bool active, int value) : super(id, active) {
     this.value = value;
   }
 
   factory Score.fromJSON(dynamic data) {
     Score score = Score(
-      stringToBase64.decode(data["id"]).toString().split(':')[1],
+      data['id'],
+      true,
       data["value"]
     );
     if (data["player"] != null) {

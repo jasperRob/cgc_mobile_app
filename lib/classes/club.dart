@@ -1,18 +1,6 @@
+import 'export.dart';
 
-/* 
-User Class
-
-Used to store data regarding a users profile
-
-Authors: Jasper Robison
-*/
-
-import 'dart:convert';
-
-Codec stringToBase64 = utf8.fuse(base64);
-
-class Club {
-  late String id;
+class Club extends CGCObject {
   late String name;
   late String email;
   late String phone;
@@ -23,8 +11,7 @@ class Club {
   late String zipCode;
   late String windDirection;
 
-  Club(String id, String name, String email, String phone, String address, String city, String state, String country, String zipCode, String windDirection) {
-    this.id = id;
+  Club(String id, bool active, String name, String email, String phone, String address, String city, String state, String country, String zipCode, String windDirection) : super(id, active) {
     this.name = name;
     this.email = email;
     this.phone = phone;
@@ -39,7 +26,8 @@ class Club {
   factory Club.fromJSON(dynamic data) {
     return Club(
       // Graphene appends class name then Base64 encodes any ID.
-      stringToBase64.decode(data["id"]).toString().split(':')[1], 
+      data['id'],
+      data['active'],
       data["name"],
       data["email"],
       data["phone"],
@@ -52,7 +40,4 @@ class Club {
     );
   }
 
-  String graphqlID() {
-    return stringToBase64.encode("Club:" + this.id).toString();
-  }
 }
