@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '../classes/export.dart';
 import '../components/export.dart';
@@ -102,7 +103,12 @@ class InvitePageState extends State<InvitePage> {
                 }
 
                 if (result.isLoading) {
-                  return Text('Loading');
+                  // return Text('Loading');
+                  return LoadingIndicator(
+                      indicatorType: Indicator.ballClipRotateMultiple,
+                      colors: const [Colors.grey],
+                      strokeWidth: 2,
+                  );
                 }
 
                 List users = result.data!["node"]["friends"]["edges"];

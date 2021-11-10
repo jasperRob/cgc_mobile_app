@@ -41,14 +41,16 @@ Future<dynamic> login(String userEmail, String password) async {
 
   QueryOptions queryOptions = QueryOptions(
     document: gql(Queries.GET_USER_BY_EMAIL),
-    variables: {
-      "email": "test.person@test.com",
-    },
+    variables:{
+      "userByEmailEmail": userEmail,
+    }
   );
 
   dynamic result = await globals.client.query(queryOptions);
 
+  print(result.data);
   return result.data["userByEmail"];
+
 }
 
 class Login extends StatelessWidget {

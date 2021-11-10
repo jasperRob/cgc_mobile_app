@@ -14,7 +14,7 @@ import '../game/export.dart';
 import '../globals.dart' as globals;
 
 
-Future<dynamic> createGame(Club club, int numHoles, List<User> players) async {
+Future<dynamic> createGame(Club club, int numMinutes, List<User> players) async {
 
 
   List playerIds = new List<String>.from(players.map((item) {
@@ -25,7 +25,7 @@ Future<dynamic> createGame(Club club, int numHoles, List<User> players) async {
     document: gql(Mutations.CREATE_GAME),
     variables: {
       "createGameClubId": club.id.hexString,
-      "createGameNumHoles": numHoles,
+      "createGameNumMinutes": numMinutes,
       "createGamePlayerIds": playerIds,
       "createGameEnded": false
     }
@@ -193,7 +193,7 @@ class CreateGameState extends State<CreateGamePage> {
                   ? StandardGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback) 
                   : CustomGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback, setNumMinutesCallback: setNumMinutesCallback),
               ),
-              SizedBox(height: 60,),
+              // SizedBox(height: 60,),
               Container(
               constraints: BoxConstraints(minHeight: 0, maxHeight: 250),
                 child: Expanded(
@@ -205,7 +205,7 @@ class CreateGameState extends State<CreateGamePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
+              // SizedBox(height: 10,),
               Container(
                 child: Material(
                   elevation: 5.0,
@@ -215,7 +215,7 @@ class CreateGameState extends State<CreateGamePage> {
                     // minWidth: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                     onPressed: () async {
-                      dynamic gameData = await createGame(globals.user.club, holeNum, players);
+                      dynamic gameData = await createGame(globals.user.club, numMinutes, players);
 
                       Game newGame = Game.fromJSON(gameData["game"]);
 
@@ -316,7 +316,7 @@ class CustomGameOptionsState extends State<CustomGameOptions> {
 
     final numMinsField = ArrowSelection(
       title: "", 
-      items: [for(var i=15; i<180; i+=15) i], 
+      items: [for(var i=15; i<180; i+=10) i], 
       itemIndex: 0, 
       callback: widget.setNumMinutesCallback
     );
@@ -324,13 +324,14 @@ class CustomGameOptionsState extends State<CustomGameOptions> {
     return Column(
       children: <Widget>[
         SizedBox(height: 10,),
-        Text("Number of Holes"),
+        // Text("Number of Holes"),
+        Text("Minutes to play"),
         SizedBox(height: 20,),
-        numHolesField,
+        // numHolesField,
+        numMinsField,
         SizedBox(height: 10,),
         // Text("Number of Minutes"),
         // SizedBox(height: 20,),
-        // numMinsField
       ],
     );
   }

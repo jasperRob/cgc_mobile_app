@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:location/location.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '../classes/export.dart';
 import '../components/export.dart';
@@ -41,7 +42,11 @@ class HomePageState extends State<HomePage> {
 
   Widget getGameTitle(Game game) {
     String dateString = getSimpleDate(game.created);
-    return Text(dateString + " - " + game.numHoles.toString() +  " Holes");
+    return Text(dateString + " - " + game.numHoles.toString() + " Holes - " + game.club.name,
+      style: TextStyle(
+        fontSize: 16
+      ),
+    );
   }
 
   DateFormat dateFormat = DateFormat("yyyy-MM-ddTHH:mm:ssZ");
@@ -71,7 +76,12 @@ class HomePageState extends State<HomePage> {
                   }
 
                   if (result.isLoading) {
-                    return Text('Loading');
+                    // return Text('Loading');
+                    return LoadingIndicator(
+                        indicatorType: Indicator.ballClipRotateMultiple,
+                        colors: const [Colors.grey],
+                        strokeWidth: 2,
+                    );
                   }
 
                   // it can be either Map or List
@@ -131,7 +141,12 @@ class HomePageState extends State<HomePage> {
                   }
 
                   if (result.isLoading) {
-                    return Text('Loading');
+                    // return Text('Loading');
+                    return LoadingIndicator(
+                        indicatorType: Indicator.ballClipRotateMultiple,
+                        colors: const [Colors.grey],
+                        strokeWidth: 2,
+                    );
                   }
 
                   // it can be either Map or List

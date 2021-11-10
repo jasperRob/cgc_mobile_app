@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '../classes/export.dart';
 import '../components/export.dart';
@@ -53,7 +54,6 @@ class GamePageState extends State<GamePage> {
 
   void nextHoleCallback(Hole hole, Score score) {
     print("NEXT HOLE CALLBACK");
-    print(game);
     // TODO: Figure out a more efficient way of doing this
     for (Hole childHole in game.holes) {
       if (childHole.holeNum == hole.holeNum + 1) {
@@ -118,10 +118,14 @@ class GamePageState extends State<GamePage> {
                   }
 
                   if (result.isLoading) {
-                    return Text('Loading');
+                    // return Text('Loading');
+                    return LoadingIndicator(
+                        indicatorType: Indicator.ballClipRotateMultiple,
+                        colors: const [Colors.grey],
+                        strokeWidth: 2,
+                    );
                   }
 
-                  print(result.data!["node"]);
                   Game game = Game.fromJSON(result.data!["node"]);
                   List holes = game.holes;
 

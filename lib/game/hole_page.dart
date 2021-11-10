@@ -101,6 +101,22 @@ class HolePageState extends State<HolePage> {
           },
         ),
         title: Text("Hole #" + widget.hole.holeNum.toString()),
+        actions: <Widget>[
+          Container(
+            padding: EdgeInsets.fromLTRB(0.0, 0, 20.0, 0),
+            child: IconButton(
+              icon: Icon(Icons.remove_red_eye),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ARTee(game: widget.game, hole: widget.hole),
+                  )
+                );
+              },
+            ),
+          ),
+        ]
       ),
       body: Center(
         child: Container(
@@ -108,7 +124,7 @@ class HolePageState extends State<HolePage> {
           color: Colors.white,
           child: Column(
             children: <Widget>[
-              SizedBox(height: 60,),
+              SizedBox(height: 10,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -121,7 +137,7 @@ class HolePageState extends State<HolePage> {
                   ),
                 ],
               ),
-              SizedBox(height: 20,),
+              SizedBox(height: 10,),
               Center(
                 child: Row(children: [
                   Text("Distance: ",
@@ -135,7 +151,7 @@ class HolePageState extends State<HolePage> {
                 crossAxisAlignment: CrossAxisAlignment.center
                 )
               ),
-              SizedBox(height: 30,),
+              SizedBox(height: 10,),
               Map(
                   location: start,
                   polylineCoordinates: <LatLng>[
@@ -143,14 +159,14 @@ class HolePageState extends State<HolePage> {
                     end
                   ],
               ),
-              SizedBox(height: 30,),
+              SizedBox(height: 10,),
               ArrowSelection(
                 title: "Your Score: ", 
                 items: [for(var i=1; i<50; i+=1) i], 
                 itemIndex: widget.hole.par-1, 
                 callback: setScoreCallback
               ),
-              SizedBox(height: 40,),
+              SizedBox(height: 10,),
               Material(
                 elevation: 5.0,
                 borderRadius: globals.radius,
