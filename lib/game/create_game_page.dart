@@ -133,35 +133,37 @@ class CreateGameState extends State<CreateGamePage> {
           color: Colors.white,
           child: Column(
             children: <Widget>[
-              SizedBox(height: 70,),
-              Center(
-                child: Row(children: [
-                  Text("Club: ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold
-                  )),
-                  SizedBox(width: 20),
-                  Text(globals.user.club.name),
-                ],
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center
-                )
+              Flexible(
+                flex: 1,
+                child: Center(
+                  child: Row(children: [
+                    Text("Club: ",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold
+                    )),
+                    // SizedBox(width: 20),
+                    Text(globals.user.club.name),
+                  ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center
+                  )
+                ),
               ),
-              SizedBox(height: 20,),
-              Center(
-                child: Row(children: [
-                  Text("Wind Direction: ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold
-                  )),
-                  SizedBox(width: 20),
-                  Text(Utils.orNA(globals.user.club.windDirection)),
-                ],
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center
-                )
+              Flexible(
+                flex: 1,
+                child: Center(
+                  child: Row(children: [
+                    Text("Wind Direction: ",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold
+                    )),
+                    Text(Utils.orNA(globals.user.club.windDirection)),
+                  ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center
+                  )
+                ),
               ),
-              SizedBox(height: 50,),
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.center,
               //   crossAxisAlignment: CrossAxisAlignment.center,
@@ -187,54 +189,61 @@ class CreateGameState extends State<CreateGamePage> {
               //     ),
               //   ],
               // ),
-              // SizedBox(height: 10,),
-              Center(
-                child: gameTypeIndex == 0
-                  ? StandardGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback) 
-                  : CustomGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback, setNumMinutesCallback: setNumMinutesCallback),
+
+              Flexible(
+                flex: 2,
+                child: Center(
+                  child: gameTypeIndex == 0
+                    ? StandardGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback) 
+                    : CustomGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback, setNumMinutesCallback: setNumMinutesCallback),
+                ),
               ),
-              // SizedBox(height: 60,),
-              Container(
-              constraints: BoxConstraints(minHeight: 0, maxHeight: 250),
-                child: Expanded(
-                  child: ListView.builder(
-                    itemCount: playerWidgets.length,
-                    itemBuilder: (context, index) {
-                      return playerWidgets.elementAt(index);
-                    },
+              Flexible(
+                flex: 4,
+                child: Container(
+                  constraints: BoxConstraints(minHeight: 0, maxHeight: 250),
+                  child: Expanded(
+                    child: ListView.builder(
+                      itemCount: playerWidgets.length,
+                      itemBuilder: (context, index) {
+                        return playerWidgets.elementAt(index);
+                      },
+                    ),
                   ),
                 ),
               ),
-              // SizedBox(height: 10,),
-              Container(
-                child: Material(
-                  elevation: 5.0,
-                  borderRadius: globals.radius,
-                  color: globals.primaryDarkColor,
-                  child: MaterialButton(
-                    // minWidth: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                    onPressed: () async {
-                      dynamic gameData = await createGame(globals.user.club, numMinutes, players);
+              Flexible(
+                flex: 1,
+                child: Container(
+                  child: Material(
+                    elevation: 5.0,
+                    borderRadius: globals.radius,
+                    color: globals.primaryDarkColor,
+                    child: MaterialButton(
+                      // minWidth: MediaQuery.of(context).size.width,
+                      padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                      onPressed: () async {
+                        dynamic gameData = await createGame(globals.user.club, numMinutes, players);
 
-                      Game newGame = Game.fromJSON(gameData["game"]);
+                        Game newGame = Game.fromJSON(gameData["game"]);
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => new GamePage(game: newGame),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => new GamePage(game: newGame),
+                          )
+                        ).then((_) => setState(() {}));
+                      },
+                      child: Text("Start Game",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: globals.primaryLightColor
                         )
-                      ).then((_) => setState(() {}));
-                    },
-                    child: Text("Start Game",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: globals.primaryLightColor
-                      )
+                      ),
                     ),
-                  ),
+                  )
                 )
-              )
+              ),
             ],
           ),
         ),
@@ -261,9 +270,9 @@ class StandardGameOptionsState extends State<StandardGameOptions> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        SizedBox(height: 30,),
+        // SizedBox(height: 30,),
         Text("Number of Holes"),
-        SizedBox(height: 20,),
+        // SizedBox(height: 20,),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -316,7 +325,7 @@ class CustomGameOptionsState extends State<CustomGameOptions> {
 
     final numMinsField = ArrowSelection(
       title: "", 
-      items: [for(var i=15; i<180; i+=10) i], 
+      items: [for(var i=10; i<=300; i+=10) i], 
       itemIndex: 0, 
       callback: widget.setNumMinutesCallback
     );

@@ -1,8 +1,8 @@
 class Mutations {
 
   static const CREATE_GAME = """
-    mutation Mutations(\$createGameClubId: String, \$createGameNumHoles: Int, \$createGamePlayerIds: [String], \$createGameEnded: Boolean) {
-      createGame(clubId: \$createGameClubId, numHoles: \$createGameNumHoles, playerIds: \$createGamePlayerIds, ended: \$createGameEnded) {
+    mutation Mutations(\$createGameClubId: String, \$createGameNumMinutes: Int, \$createGamePlayerIds: [String], \$createGameEnded: Boolean) {
+      createGame(clubId: \$createGameClubId, numMinutes: \$createGameNumMinutes, playerIds: \$createGamePlayerIds, ended: \$createGameEnded) {
         ok
         game {
           id

@@ -101,71 +101,66 @@ class GamePageState extends State<GamePage> {
           },
         ),
       ),
-      body: Column(
-        children: <Widget>[
-            Container(
-              child: Query(
-                options: QueryOptions(
-                    document: gql(Queries.GET_GAME),
-                    variables: {
-                      "nodeId": game.graphqlID()
-                    },
-                    pollInterval: Duration(seconds: 10),
-                ),
-                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
-                  if (result.hasException) {
-                      return Text(result.exception.toString());
-                  }
+      body: Query(
+        options: QueryOptions(
+          document: gql(Queries.GET_GAME),
+            variables: {
+              "nodeId": game.graphqlID()
+            },
+            pollInterval: Duration(seconds: 10),
+          ),
+          builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+            if (result.hasException) {
+              return Text(result.exception.toString());
+            }
 
-                  if (result.isLoading) {
-                    // return Text('Loading');
-                    return LoadingIndicator(
-                        indicatorType: Indicator.ballClipRotateMultiple,
-                        colors: const [Colors.grey],
-                        strokeWidth: 2,
-                    );
-                  }
+            if (result.isLoading) {
+              // return Text('Loading');
+              return LoadingIndicator(
+                indicatorType: Indicator.ballClipRotateMultiple,
+                colors: const [Colors.grey],
+                strokeWidth: 2,
+              );
+            }
 
-                  Game game = Game.fromJSON(result.data!["node"]);
-                  List holes = game.holes;
+            Game game = Game.fromJSON(result.data!["node"]);
+            List holes = game.holes;
 
-                  return ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: holes.length,
-                    itemBuilder: (context, index) {
-                      Hole hole = holes[index];
-                      return Card(
-                        child: Column(
-                          children: <Widget>[
-                            ListTile(
-                              title: Text("Hole " + hole.holeNum.toString()),
-                              trailing: MaterialButton(
-                                child: Text("View"),
-                                onPressed: (hole.holeNum > 1 && hole.scores.length == 0) ? null : () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => new HolePage(
-                                        hole: hole,
-                                        game: game,
-                                        nextHoleCallback: nextHoleCallback,
-                                        finishGameCallback: finishGameCallback
-                                        ),
-                                    )
-                                  ).then((_) => setState(() {}));
-                                }
+            return ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: holes.length,
+              itemBuilder: (context, index) {
+                Hole hole = holes[index];
+                return Card(
+                  child: Column(
+                    children: <Widget>[
+                      ListTile(
+                        title: Text("Hole " + hole.holeNum.toString()),
+                        trailing: MaterialButton(
+                          child: Text("View"),
+                          onPressed: (hole.holeNum > 1 && hole.scores.length == 0) ? null : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => new HolePage(
+                                  hole: hole,
+                                  game: game,
+                                  nextHoleCallback: nextHoleCallback,
+                                  finishGameCallback: finishGameCallback
+                                ),
                               )
-                            )
-                          ],
-                        ),
-                      );
-                  });
-                },
-              )
-            ),
-        ],
-      )
+                            ).then((_) => setState(() {}));
+                          }
+                        )
+                      )
+                    ],
+                  ),
+                );
+              });
+            },
+      ),
     );
   }
 

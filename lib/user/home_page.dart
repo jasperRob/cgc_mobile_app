@@ -88,7 +88,7 @@ class HomePageState extends State<HomePage> {
                   List games = result.data!['allGames']['edges'];
 
                   return ListView.builder(
-                    scrollDirection: Axis.vertical,
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: games.length,
                     itemBuilder: (context, index) {
@@ -153,7 +153,7 @@ class HomePageState extends State<HomePage> {
                   List games = result.data!['allGames']['edges'];
 
                   return ListView.builder(
-                    scrollDirection: Axis.vertical,
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: games.length,
                     itemBuilder: (context, index) {

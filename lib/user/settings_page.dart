@@ -19,7 +19,11 @@ class SettingsPage extends StatelessWidget{
   
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primaryColor: globals.primaryDarkColor),
+      theme: ThemeData(
+          primarySwatch: Colors.grey,
+          primaryColor: globals.primaryDarkColor
+          // primaryColor: Colors.green[300]
+      ),
       home: Scaffold(
         appBar: AppBar(
           leading: IconButton(

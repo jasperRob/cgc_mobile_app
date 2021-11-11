@@ -125,72 +125,85 @@ class HolePageState extends State<HolePage> {
           child: Column(
             children: <Widget>[
               SizedBox(height: 10,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text("Par  " + widget.hole.par.toString(),
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold
-                    ),
+
+              Flexible(
+                flex: 1,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text("Par  " + widget.hole.par.toString(),
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            ),
+                        ),
+                      ],
                   ),
-                ],
               ),
-              SizedBox(height: 10,),
-              Center(
-                child: Row(children: [
-                  Text("Distance: ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold
-                  )),
-                  SizedBox(width: 10),
-                  Text(Utils.orNAInt(widget.hole.distance) + "m"),
-                ],
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center
-                )
-              ),
-              SizedBox(height: 10,),
-              Map(
-                  location: start,
-                  polylineCoordinates: <LatLng>[
-                    start, 
-                    end
+              // SizedBox(height: 10,),
+              Flexible(
+                flex: 1,
+                child: Center(
+                  child: Row(children: [
+                    Text("Distance: ",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        )),
+                    SizedBox(width: 10),
+                    Text(Utils.orNAInt(widget.hole.distance) + "m"),
                   ],
-              ),
-              SizedBox(height: 10,),
-              ArrowSelection(
-                title: "Your Score: ", 
-                items: [for(var i=1; i<50; i+=1) i], 
-                itemIndex: widget.hole.par-1, 
-                callback: setScoreCallback
-              ),
-              SizedBox(height: 10,),
-              Material(
-                elevation: 5.0,
-                borderRadius: globals.radius,
-                color: globals.primaryDarkColor,
-                child: MaterialButton(
-                  // minWidth: MediaQuery.of(context).size.width,
-                  child: Text((widget.game.numHoles == widget.hole.holeNum) ? "Finish" : "Submit Score",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: globals.primaryLightColor,
-                    )
-                  ),
-                  padding: globals.padding,
-                  onPressed: () async {
-                    dynamic data = await submitScore(widget.hole, globals.user, score);
-                    Score newScore = Score.fromJSON(data["score"]);
-                    if (widget.game.numHoles == widget.hole.holeNum) {
-                      widget.finishGameCallback(widget.game);
-                    } else {
-                      widget.nextHoleCallback(widget.hole, newScore);
-                    }
-                  }
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center
+                  )
                 ),
-              )
+              ),
+              Flexible(
+                flex: 5,
+                child: Map(
+                    location: start,
+                    polylineCoordinates: <LatLng>[
+                      start, 
+                      end
+                    ],
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: ArrowSelection(
+                    title: "Your Score: ", 
+                    items: [for(var i=1; i<50; i+=1) i], 
+                    itemIndex: widget.hole.par-1, 
+                    callback: setScoreCallback
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Material(
+                  elevation: 5.0,
+                  borderRadius: globals.radius,
+                  color: globals.primaryDarkColor,
+                  child: MaterialButton(
+                      // minWidth: MediaQuery.of(context).size.width,
+                      child: Text((widget.game.numHoles == widget.hole.holeNum) ? "Finish" : "Submit Score",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: globals.primaryLightColor,
+                          )
+                      ),
+                      padding: globals.padding,
+                      onPressed: () async {
+                        dynamic data = await submitScore(widget.hole, globals.user, score);
+                        Score newScore = Score.fromJSON(data["score"]);
+                        if (widget.game.numHoles == widget.hole.holeNum) {
+                          widget.finishGameCallback(widget.game);
+                        } else {
+                          widget.nextHoleCallback(widget.hole, newScore);
+                        }
+                      }
+                  ),
+                ),
+              ),
             ],
           ),
         ),

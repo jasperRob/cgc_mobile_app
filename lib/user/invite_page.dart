@@ -74,6 +74,22 @@ class InvitePageState extends State<InvitePage> {
             Navigator.of(context).pop(Future.error("No User selected!"));
           },
         ),
+        actions: <Widget>[
+          Container(
+            padding: EdgeInsets.fromLTRB(0.0, 0, 20.0, 0),
+            child: IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreateGuestPage(callback: widget.callback),
+                  )
+                );
+              },
+            ),
+          ),
+        ]
       ),
       body: Column(
         children: <Widget>[
