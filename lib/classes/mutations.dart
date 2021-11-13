@@ -8,25 +8,14 @@ class Mutations {
           id
           active
           numHoles
+          ended
           holes {
             edges {
               node {
                 id
                 holeNum
                 par
-                scores {
-                  edges {
-                    node {
-                      id
-                      value
-                      player {
-                        id
-                        firstName
-                        lastName
-                      }
-                    }
-                  }
-                }
+                distance
               }
             }
           }

@@ -107,7 +107,7 @@ class InvitePageState extends State<InvitePage> {
           Container(
             child: Query(
               options: QueryOptions(
-                  document: gql(GET_USER_FRIENDS),
+                  document: gql(Queries.GET_USER_FRIENDS),
                   variables: {
                     "nodeId": globals.user.graphqlID()
                   },
@@ -134,6 +134,8 @@ class InvitePageState extends State<InvitePage> {
                   shrinkWrap: true,
                   itemCount: users.length,
                   itemBuilder: (context, index) {
+                    print("--------------");
+                    print(users[index]["node"]);
                     User user = User.fromJSON(users[index]["node"]);
 
                     return Card(

@@ -18,12 +18,24 @@ const GET_USER = """
         firstName
         lastName
         email
+        birthDate
         gender
         handicap
         totalGames
+        admin
+        active
         club {
           id
+          active
           name
+          email
+          phone
+          address
+          city
+          state
+          country
+          zipCode
+          windDirection
         }
       }
     }
@@ -139,7 +151,7 @@ class UserPageState extends State<UserPage> {
                       fontWeight: FontWeight.bold
                   )),
                   SizedBox(width: 20),
-                  Text(user.totalGames.toString()),
+                  // Text(user.totalGames.toString()),
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center

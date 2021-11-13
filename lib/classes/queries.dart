@@ -5,6 +5,8 @@ class Queries {
       node(id: \$nodeId) {
         ... on Club {
           id
+          name
+          active
           email
           phone
           address
@@ -24,9 +26,25 @@ class Queries {
         id
         firstName
         lastName
+        email
+        birthDate
+        gender
+        handicap
+        totalGames
+        admin
+        active
         club {
           id
+          active
           name
+          email
+          phone
+          address
+          city
+          state
+          country
+          zipCode
+          windDirection
         }
       }
     }
@@ -44,15 +62,33 @@ class Queries {
         handicap
         totalGames
         admin
+        active
         club {
           id
+          active
           name
+          email
+          phone
+          address
+          city
+          state
+          country
+          zipCode
           windDirection
         }
         friends {
           edges {
             node {
               id
+              firstName
+              lastName
+              email
+              birthDate
+              gender
+              handicap
+              totalGames
+              admin
+              active
             }
           }
         }
@@ -71,6 +107,13 @@ class Queries {
                 id
                 firstName
                 lastName
+                email
+                birthDate
+                gender
+                handicap
+                totalGames
+                admin
+                active
               }
             }
           }
@@ -87,6 +130,15 @@ class Queries {
             edges {
               node {
                 id
+                firstName
+                lastName
+                email
+                birthDate
+                gender
+                handicap
+                totalGames
+                admin
+                active
               }
             }
           }
@@ -114,12 +166,9 @@ class Queries {
       node(id: \$nodeId) {
         ... on Game {
           id
-          club {
-            id
-            name
-            country
-          }
           numHoles
+          active
+          ended
           holes {
             edges {
               node {
@@ -127,16 +176,23 @@ class Queries {
                 holeNum
                 par
                 distance
-                start
-                finish
                 scores {
                   edges {
                     node {
                       id
-                      value
                       player {
                         id
+                        firstName
+                        lastName
+                        email
+                        birthDate
+                        gender
+                        handicap
+                        totalGames
+                        admin
+                        active
                       }
+                      value
                     }
                   }
                 }
@@ -149,6 +205,13 @@ class Queries {
                 id
                 firstName
                 lastName
+                email
+                birthDate
+                gender
+                handicap
+                totalGames
+                admin
+                active
               }
             }
           }
@@ -166,9 +229,19 @@ class Queries {
             id
             numHoles
             active
+            ended
             club {
               id
+              active
               name
+              email
+              phone
+              address
+              city
+              state
+              country
+              zipCode
+              windDirection
             }
             holes {
               edges {
@@ -176,28 +249,7 @@ class Queries {
                   id
                   holeNum
                   par
-                  scores {
-                    edges {
-                      node {
-                        id
-                        value
-                        player {
-                          id
-                          firstName
-                          lastName
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            players {
-              edges {
-                node {
-                  id
-                  firstName
-                  lastName
+                  distance
                 }
               }
             }

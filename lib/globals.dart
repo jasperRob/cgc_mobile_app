@@ -38,12 +38,12 @@ GraphQLClient client = GraphQLClient(
 User user = User(
   "null",
   false,
+  false,
   "null",
   "null",
   "null",
   "null",
   "null",
-  -1,
   -1,
   -1,
   [],

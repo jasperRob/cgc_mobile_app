@@ -28,13 +28,13 @@ class Game extends CGCObject {
       }));
     }
 
-    // Create Player List
-    List<User> winners = [];
-    if (data["winners"] != null) {
-      winners = new List.from(data["winners"]["edges"].map((item) {
-        return User.fromJSON(item["node"]);
-      }));
-    }
+    // // Create Player List
+    // List<User> winners = [];
+    // if (data["winners"] != null) {
+    //   winners = new List.from(data["winners"]["edges"].map((item) {
+    //     return User.fromJSON(item["node"]);
+    //   }));
+    // }
     Game game = Game(
       // Graphene appends class name then Base64 encodes any ID.
       data['id'],

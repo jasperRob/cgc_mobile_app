@@ -93,6 +93,8 @@ class HomePageState extends State<HomePage> {
                     itemCount: games.length,
                     itemBuilder: (context, index) {
                       Game game = Game.fromJSON(games[index]["node"]);
+                      print("++++++++");
+                      print(games[index]["node"]);
 
                       return Card(
                         child: Column(

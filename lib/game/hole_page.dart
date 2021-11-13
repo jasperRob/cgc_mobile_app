@@ -32,6 +32,15 @@ Future<dynamic> submitScore(Hole hole, User player, int value) async {
         id
         player {
           id
+          firstName
+          lastName
+          email
+          birthDate
+          gender
+          handicap
+          totalGames
+          admin
+          active
         }
         value
       }
