@@ -51,8 +51,8 @@ class User extends CGCObject {
       data["firstName"],
       data["lastName"],
       data["email"],
-      data["gender"],
-      data["birthDate"],
+      data["gender"] != null ? data["gender"] : "null",
+      data["birthDate"] != null ? data["birthDate"] : "null",
       data["handicap"],
       data["totalGames"],
       friends,
@@ -63,6 +63,26 @@ class User extends CGCObject {
       user.club = Club.fromJSON(data["club"]);
     }
     return user;
+  }
+
+  factory User.dummyUser() {
+
+    // This ID consists of a randomly generated hex string that will probably never exist in the database
+    User blankUser = User(
+        "VXNlcjo2MTkyMWFlMzRmMDFmOGZmZjE4NGNhYjI=",
+        false,
+        false,
+        "DUMMY-FIRST-NAME",
+        "DUMMY-LAST-NAME",
+        "DUMMY-EMAIL",
+        "X",
+        "00-00-0000",
+        -1,
+        -1,
+        [],
+        []
+    );
+    return blankUser;
   }
 
   String fullName() {

@@ -64,9 +64,9 @@ class HomePageState extends State<HomePage> {
             Container(
               child: Query(
                 options: QueryOptions(
-                    document: gql(Queries.GET_ALL_GAMES),
+                    document: gql(Queries.GET_ACTIVE_GAMES),
                     variables: {
-                      "allGamesEnded": false
+                      "userId": globals.user.id.hexString,
                     },
                     pollInterval: Duration(seconds: 10),
                 ),
@@ -84,15 +84,19 @@ class HomePageState extends State<HomePage> {
                     );
                   }
 
+                  print("ACTIVE GAMES = ");
+                  print(result.data);
                   // it can be either Map or List
-                  List games = result.data!['allGames']['edges'];
+                  // List games = result.data!['allGames']['edges'];
+                  List games = result.data!['activeGamesByUserId'];
 
                   return ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: games.length,
                     itemBuilder: (context, index) {
-                      Game game = Game.fromJSON(games[index]["node"]);
+                      // Game game = Game.fromJSON(games[index]["node"]);
+                      Game game = Game.fromJSON(games[index]);
                       print("++++++++");
                       print(games[index]["node"]);
 
@@ -131,9 +135,9 @@ class HomePageState extends State<HomePage> {
             Container(
               child: Query(
                 options: QueryOptions(
-                    document: gql(Queries.GET_ALL_GAMES),
+                    document: gql(Queries.GET_ENDED_GAMES),
                     variables: {
-                      "allGamesEnded": true
+                      "userId": globals.user.id.hexString,
                     },
                     pollInterval: Duration(seconds: 10),
                 ),
@@ -152,14 +156,14 @@ class HomePageState extends State<HomePage> {
                   }
 
                   // it can be either Map or List
-                  List games = result.data!['allGames']['edges'];
+                  List games = result.data!['endedGamesByUserId'];
 
                   return ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: games.length,
                     itemBuilder: (context, index) {
-                      Game game = Game.fromJSON(games[index]["node"]);
+                      Game game = Game.fromJSON(games[index]);
 
                       return Card(
                         child: Column(

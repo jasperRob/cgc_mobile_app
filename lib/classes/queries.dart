@@ -15,10 +15,45 @@ class Queries {
           country
           zipCode
           windDirection
+          windStrength
         }
       }
     }
   """;
+
+  static const GET_USER = """
+    query Query(\$nodeId: ID!) {
+      node(id: \$nodeId) {
+        ... on User {
+          id
+          firstName
+          lastName
+          email
+          birthDate
+          gender
+          handicap
+          totalGames
+          admin
+          active
+          club {
+            id
+            active
+            name
+            email
+            phone
+            address
+            city
+            state
+            country
+            zipCode
+            windDirection
+            windStrength
+          }
+        }
+      }
+    }
+  """;
+
 
   static const GET_USERS_BY_KEYWORD = '''
     query Query(\$usersByKeywordKeyword: String!) {
@@ -45,6 +80,7 @@ class Queries {
           country
           zipCode
           windDirection
+          windStrength
         }
       }
     }
@@ -75,6 +111,7 @@ class Queries {
           country
           zipCode
           windDirection
+          windStrength
         }
         friends {
           edges {
@@ -220,6 +257,56 @@ class Queries {
     }
   """;
 
+  static const GET_ACTIVE_GAMES = """
+    query Query(\$userId: String!) {
+      activeGamesByUserId(userId: \$userId) {
+        id
+        numHoles
+        active
+        ended
+        club {
+          id
+          active
+          name
+          email
+          phone
+          address
+          city
+          state
+          country
+          zipCode
+          windDirection
+          windStrength
+        }
+      }
+    }
+  """;
+
+  static const GET_ENDED_GAMES = """
+    query Query(\$userId: String!) {
+      endedGamesByUserId(userId: \$userId) {
+        id
+        numHoles
+        active
+        ended
+        club {
+          id
+          active
+          name
+          email
+          phone
+          address
+          city
+          state
+          country
+          zipCode
+          windDirection
+          windStrength
+        }
+      }
+    }
+  """;
+
 
   static const GET_ALL_GAMES = '''
     query Query(\$allGamesEnded: Boolean) {
@@ -242,6 +329,7 @@ class Queries {
               country
               zipCode
               windDirection
+              windStrength
             }
             holes {
               edges {

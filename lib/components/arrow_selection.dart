@@ -33,6 +33,12 @@ class ArrowSelectionState extends State<ArrowSelection> {
 
   ArrowSelectionState(this.title, this.items, this.itemIndex);
 
+  void updateItemIndex(int index) {
+    setState(() {
+      this.itemIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -40,42 +46,48 @@ class ArrowSelectionState extends State<ArrowSelection> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        SizedBox(
-          width: 10.0,
+        Flexible(
+          flex: 1,
+          child: Text(title),
         ),
-        Text(title),
-        SizedBox(
-          width: 10.0,
+        Flexible(
+          flex: 1,
+          child: MaterialButton(
+              minWidth: 5,
+              child: Icon(Icons.arrow_left),
+              onPressed: () {
+                if (itemIndex > 0) {
+                  setState(() {
+                    itemIndex -= 1;
+                  });
+                  widget.callback(items.elementAt(itemIndex));
+                }
+              },
+          ),
         ),
-        MaterialButton(
-          minWidth: 5,
-          child: Icon(Icons.arrow_left),
-          onPressed: () {
-            if (itemIndex > 0) {
-              setState(() {
-                itemIndex -= 1;
-              });
-              widget.callback(items.elementAt(itemIndex));
-            }
-          },
+        Flexible(
+          flex: 1,
+          child: MaterialButton(
+              child: Text(items.elementAt(itemIndex).toString()),
+              onPressed: () {
+                print("dummy button pressed");
+              }
+          ),
         ),
-        MaterialButton(
-          child: Text(items.elementAt(itemIndex).toString()),
-          onPressed: () {
-            print("dummy button pressed");
-          }
-        ),
-        MaterialButton(
-          minWidth: 5,
-          child: Icon(Icons.arrow_right),
-          onPressed: () {
-            if (itemIndex < (items.length-1)) {
-              setState(() {
-                itemIndex += 1;
-              });
-              widget.callback(items.elementAt(itemIndex));
-            }
-          },
+        Flexible(
+          flex: 1,
+          child: MaterialButton(
+              minWidth: 5,
+              child: Icon(Icons.arrow_right),
+              onPressed: () {
+                if (itemIndex < (items.length-1)) {
+                  setState(() {
+                    itemIndex += 1;
+                  });
+                  widget.callback(items.elementAt(itemIndex));
+                }
+              },
+          ),
         ),
       ],
     );

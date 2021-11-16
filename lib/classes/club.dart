@@ -10,8 +10,9 @@ class Club extends CGCObject {
   late String country;
   late String zipCode;
   late String windDirection;
+  late double windStrength;
 
-  Club(String id, bool active, String name, String email, String phone, String address, String city, String state, String country, String zipCode, String windDirection) : super(id, active) {
+  Club(String id, bool active, String name, String email, String phone, String address, String city, String state, String country, String zipCode, String windDirection, double windStrength) : super(id, active) {
     this.name = name;
     this.email = email;
     this.phone = phone;
@@ -21,6 +22,7 @@ class Club extends CGCObject {
     this.country = country;
     this.zipCode = zipCode;
     this.windDirection = windDirection;
+    this.windStrength = windStrength;
     }
 
   factory Club.fromJSON(dynamic data) {
@@ -36,7 +38,8 @@ class Club extends CGCObject {
       data["state"],
       data["country"],
       data["zipCode"],
-      data["windDirection"]
+      data["windDirection"],
+      data["windStrength"]
     );
   }
 

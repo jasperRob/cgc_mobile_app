@@ -27,7 +27,8 @@ Future<dynamic> createGame(Club club, int numMinutes, List<User> players) async 
       "createGameClubId": club.id.hexString,
       "createGameNumMinutes": numMinutes,
       "createGamePlayerIds": playerIds,
-      "createGameEnded": false
+      "createGameEnded": false,
+      "createGameWindStrength": 0.2,
     }
   );
   dynamic result = await globals.client.mutate(mutationOptions);
@@ -78,51 +79,75 @@ class CreateGameState extends State<CreateGamePage> {
   @override
   Widget build(BuildContext context) {
 
+    // print("PLAYERS");
+    // print(players);
+
+    // for (User user in players) {
+    //   print(user.fullName());
+    // }
     // Create our player selectors
     final playerWidgets = <Widget>[];
     for (int i = 0; i < players.length; i++) {
       User player = players[i];
 
       playerWidgets.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: 50),
-            Text("Player " + (i+1).toString()),
-            SizedBox(width: 20,),
-            Text(player.fullName(),
-              style: TextStyle(
-                fontWeight: FontWeight.bold
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Flexible(
+                flex: 1,
+                child: Text("Player " + (i+1).toString()),
               ),
-            ),
-            SizedBox(width: 20,),
-          ],
-        )
+              // Flexible(
+              //   flex: 1,
+              //   child: Spacer(),
+              // ),
+              SizedBox(width: 10),
+              Flexible(
+                flex: 1,
+                // Spacer(),
+                child: Text(player.fullName(),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold
+                    ),
+                ),
+              ),
+            ],
+          )
       );
     }
     if (players.length < maxNumPlayers) {
       playerWidgets.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text("Player " + (players.length+1).toString()),
-            SizedBox(width: 20,),
-            MaterialButton(
-              child: Icon(Icons.add),
-              onPressed: () {
-                print("ADD PRESSED");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => new InvitePage(selected: players, callback: invitePlayerCallback),
-                  )
-                ).then((_) => setState(() {}));
-              },
-            ),
-            SizedBox(width: 20,),
-          ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Flexible(
+                flex: 1,
+                child: Text("Player " + (players.length+1).toString()),
+              ),
+              // Flexible(
+              //   flex: 1,
+              //   child: Spacer(),
+              // ),
+              SizedBox(width: 10),
+              Flexible(
+                flex: 1,
+                child: MaterialButton(
+                    child: Icon(Icons.add),
+                    onPressed: () {
+                      print("ADD PRESSED");
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => new InvitePage(selected: players, callback: invitePlayerCallback),
+                          )
+                      ).then((_) => setState(() {}));
+                    },
+                ),
+              ),
+            ],
         )
       );
     }
@@ -133,6 +158,7 @@ class CreateGameState extends State<CreateGamePage> {
           color: Colors.white,
           child: Column(
             children: <Widget>[
+              Spacer(),
               Flexible(
                 flex: 1,
                 child: Center(
@@ -158,6 +184,21 @@ class CreateGameState extends State<CreateGamePage> {
                         fontWeight: FontWeight.bold
                     )),
                     Text(Utils.orNA(globals.user.club.windDirection)),
+                  ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center
+                  )
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Center(
+                  child: Row(children: [
+                    Text("Wind Strength: ",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold
+                    )),
+                    Text(Utils.orNADouble(globals.user.club.windStrength)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center
@@ -191,7 +232,7 @@ class CreateGameState extends State<CreateGamePage> {
               // ),
 
               Flexible(
-                flex: 2,
+                flex: 5,
                 child: Center(
                   child: gameTypeIndex == 0
                     ? StandardGameOptions(holeNum: holeNum, setNumHolesCallback: setNumHolesCallback) 
@@ -199,21 +240,16 @@ class CreateGameState extends State<CreateGamePage> {
                 ),
               ),
               Flexible(
-                flex: 4,
-                child: Container(
-                  constraints: BoxConstraints(minHeight: 0, maxHeight: 250),
-                  child: Expanded(
-                    child: ListView.builder(
-                      itemCount: playerWidgets.length,
-                      itemBuilder: (context, index) {
-                        return playerWidgets.elementAt(index);
-                      },
-                    ),
-                  ),
+                flex: 7,
+                child: ListView.builder(
+                  itemCount: playerWidgets.length,
+                  itemBuilder: (context, index) {
+                    return playerWidgets.elementAt(index);
+                  },
                 ),
               ),
               Flexible(
-                flex: 1,
+                flex: 2,
                 child: Container(
                   child: Material(
                     elevation: 5.0,
@@ -332,7 +368,7 @@ class CustomGameOptionsState extends State<CustomGameOptions> {
 
     return Column(
       children: <Widget>[
-        SizedBox(height: 10,),
+        SizedBox(height: 30,),
         // Text("Number of Holes"),
         Text("Minutes to play"),
         SizedBox(height: 20,),

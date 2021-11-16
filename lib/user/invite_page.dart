@@ -80,10 +80,11 @@ class InvitePageState extends State<InvitePage> {
             child: IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
+                User newUser = User.dummyUser();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CreateGuestPage(callback: widget.callback),
+                    builder: (context) => CreateGuestPage(widget.callback, newUser),
                   )
                 );
               },
@@ -134,8 +135,8 @@ class InvitePageState extends State<InvitePage> {
                   shrinkWrap: true,
                   itemCount: users.length,
                   itemBuilder: (context, index) {
-                    print("--------------");
-                    print(users[index]["node"]);
+                    // print("--------------");
+                    // print(users[index]["node"]);
                     User user = User.fromJSON(users[index]["node"]);
 
                     return Card(

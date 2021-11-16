@@ -99,6 +99,7 @@ class HolePageState extends State<HolePage> {
     });
   }
 
+
     // TODO: FIX THIS, MAKE SURE PREVIOUSLY SELECTED SCORE IS SHOWN
 
     return Scaffold(
@@ -133,8 +134,7 @@ class HolePageState extends State<HolePage> {
           color: Colors.white,
           child: Column(
             children: <Widget>[
-              SizedBox(height: 10,),
-
+              Spacer(),
               Flexible(
                 flex: 1,
                   child: Row(
@@ -151,6 +151,7 @@ class HolePageState extends State<HolePage> {
                   ),
               ),
               // SizedBox(height: 10,),
+              Spacer(),
               Flexible(
                 flex: 1,
                 child: Center(
@@ -168,7 +169,24 @@ class HolePageState extends State<HolePage> {
                 ),
               ),
               Flexible(
-                flex: 5,
+                flex: 1,
+                child: Center(
+                  child: Row(children: [
+                    Text("Adjusted Distance: ",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        )),
+                    SizedBox(width: 10),
+                    Text(Utils.adjustedDistance(widget.hole.distance, widget.hole.holeNum, 0.2, globals.user.handicap).toStringAsFixed(1) + "m"),
+                  ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center
+                  )
+                ),
+              ),
+              Spacer(),
+              Flexible(
+                flex: 8,
                 child: Map(
                     location: start,
                     polylineCoordinates: <LatLng>[
@@ -177,6 +195,7 @@ class HolePageState extends State<HolePage> {
                     ],
                 ),
               ),
+              Spacer(),
               Flexible(
                 flex: 2,
                 child: ArrowSelection(
@@ -186,8 +205,9 @@ class HolePageState extends State<HolePage> {
                     callback: setScoreCallback
                 ),
               ),
+              Spacer(),
               Flexible(
-                flex: 1,
+                flex: 2,
                 child: Material(
                   elevation: 5.0,
                   borderRadius: globals.radius,
@@ -213,6 +233,7 @@ class HolePageState extends State<HolePage> {
                   ),
                 ),
               ),
+              Spacer(),
             ],
           ),
         ),

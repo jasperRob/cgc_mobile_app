@@ -20,7 +20,8 @@ final Color? primaryDarkColor = Colors.grey[800];
 final Color? primaryLightColor = Colors.white;
 final Color? secondaryColor = Color.fromRGBO(215, 188, 141, 1.0);
 
-TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+TextStyle loginStyle = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+TextStyle guestStyle = TextStyle(fontFamily: 'Montserrat', fontSize: 14.0);
 EdgeInsets padding = EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0);
 BorderRadius radius = BorderRadius.circular(5);
 
@@ -35,19 +36,7 @@ GraphQLClient client = GraphQLClient(
   cache: GraphQLCache(),
 );
 
-User user = User(
-  "null",
-  false,
-  false,
-  "null",
-  "null",
-  "null",
-  "null",
-  "null",
-  -1,
-  -1,
-  [],
-  []
-);
+// Init user as blank placeholder
+User user = User.dummyUser();
 
 late LocationData locationData;

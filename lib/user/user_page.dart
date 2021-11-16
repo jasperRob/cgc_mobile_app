@@ -10,38 +10,6 @@ import '../game/export.dart';
 
 import '../globals.dart' as globals;
 
-const GET_USER = """
-  query Query(\$nodeId: ID!) {
-    node(id: \$nodeId) {
-      ... on User {
-        id
-        firstName
-        lastName
-        email
-        birthDate
-        gender
-        handicap
-        totalGames
-        admin
-        active
-        club {
-          id
-          active
-          name
-          email
-          phone
-          address
-          city
-          state
-          country
-          zipCode
-          windDirection
-        }
-      }
-    }
-  }
-""";
-
 class UserPage extends StatefulWidget {
 
   User user;
@@ -77,7 +45,7 @@ class UserPageState extends State<UserPage> {
       ),
       body: Query(
         options: QueryOptions(
-            document: gql(GET_USER),
+            document: gql(Queries.GET_USER),
             variables: {
               "nodeId": user.graphqlID()
             },
@@ -116,19 +84,19 @@ class UserPageState extends State<UserPage> {
                 )
               ),
               SizedBox(height: 20),
-              Center(
-                child: Row(children: [
-                  Text("Gender: ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold
-                  )),
-                  SizedBox(width: 20),
-                  Text(user.gender),
-                ],
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center
-                )
-              ),
+              // Center(
+              //   child: Row(children: [
+              //     Text("Gender: ",
+              //       style: TextStyle(
+              //         fontWeight: FontWeight.bold
+              //     )),
+              //     SizedBox(width: 20),
+              //     Text(user.gender),
+              //   ],
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   crossAxisAlignment: CrossAxisAlignment.center
+              //   )
+              // ),
               SizedBox(height: 20),
               Center(
                 child: Row(children: [

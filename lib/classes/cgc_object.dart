@@ -20,7 +20,7 @@ class CGCObject {
 
   CGCObject(String id, bool active) {
     var idArray = stringToBase64.decode(id).toString().split(':');
-    if (id.length > 1) {
+    if (idArray.length > 1) {
       this.id = ObjectId.fromHexString(idArray[1]);
       this.className = idArray[0];
     } else {

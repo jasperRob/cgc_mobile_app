@@ -39,6 +39,8 @@ Future<void> loginAction() async {
 
 Future<dynamic> login(String userEmail, String password) async {
 
+  print("USEREMAIL = " + userEmail);
+
   QueryOptions queryOptions = QueryOptions(
     document: gql(Queries.GET_USER_BY_EMAIL),
     variables:{
@@ -48,22 +50,25 @@ Future<dynamic> login(String userEmail, String password) async {
 
   dynamic result = await globals.client.query(queryOptions);
 
-  print(result.data);
   return result.data["userByEmail"];
 
 }
 
 class Login extends StatelessWidget {
 
+  static TextEditingController emailController = new TextEditingController();
+  static TextEditingController passwordController = new TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController emailController = new TextEditingController();
     final emailField = Container(
       margin: EdgeInsets.symmetric(horizontal: 40, vertical: 0),
-      child: TextField(
+      child: TextFormField(
         controller: emailController,
+        enableSuggestions: false,
         obscureText: false,
-        style: globals.style,
+        textCapitalization: TextCapitalization.none,
+        style: globals.loginStyle,
         decoration: InputDecoration(
           contentPadding: globals.padding,
           hintText: "Email",
@@ -71,13 +76,14 @@ class Login extends StatelessWidget {
         ),
       ),
     );
-    TextEditingController passwordController = new TextEditingController();
     final passwordField = Container(
       margin: EdgeInsets.symmetric(horizontal: 40, vertical: 0),
-      child: TextField(
-        controller: emailController,
+      child: TextFormField(
+        controller: passwordController,
+        enableSuggestions: false,
         obscureText: true,
-        style: globals.style,
+        textCapitalization: TextCapitalization.none,
+        style: globals.loginStyle,
         decoration: InputDecoration(
           contentPadding: globals.padding,
           hintText: "Password",
@@ -97,10 +103,10 @@ class Login extends StatelessWidget {
           padding: globals.padding,
           onPressed: () async {
             // Send Login request
-            print("LOGGIN IN");
-            Future<dynamic> data = login("test.person@test.com", "test");
+            Future<dynamic> data = login(emailController.text, passwordController.text);
+            // Future<dynamic> data = login("jasper.robison@gada.io", passwordController.text);
             data.then((body){
-              print("HERE");
+              print("MY DETAILS:");
               print(body);
               globals.user = User.fromJSON(body);
               Navigator.push(
@@ -113,7 +119,7 @@ class Login extends StatelessWidget {
           },
           child: Text("Login",
             textAlign: TextAlign.center,
-            style: globals.style.copyWith(
+            style: globals.loginStyle.copyWith(
               color: Colors.white, fontWeight: FontWeight.bold
             ),
           ),

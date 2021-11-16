@@ -182,6 +182,20 @@ class ClubPageState extends State<ClubPage> {
                 crossAxisAlignment: CrossAxisAlignment.center
                 )
               ),
+              SizedBox(height: 20),
+              Center(
+                child: Row(children: [
+                  Text("Current Wind Strength: ",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  )),
+                  SizedBox(width: 20),
+                  Text(Utils.orNADouble(club.windStrength)),
+                ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center
+                )
+              ),
             ],
           );
         },
