@@ -25,6 +25,6 @@ platform :ios do
   end
 
   lane :screenshots do
-    capture_screenshots(workspace: "Runner.xcworkspace", scheme: "aibleUITests")
+    capture_screenshots(workspace: "Runner.xcworkspace", scheme: "cgcUITests")
  end
 end

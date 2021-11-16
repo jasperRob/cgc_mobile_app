@@ -1,4 +1,4 @@
-app_identifier("com.aible.ios") # The bundle identifier of your app
+app_identifier("com.gada.compactgolf") # The bundle identifier of your app
 apple_id("acrow@crowtech.com.au") # Your Apple email address
 
 itc_team_id("119980296") # App Store Connect Team ID
