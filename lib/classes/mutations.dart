@@ -24,6 +24,17 @@ class Mutations {
     }
   """;
 
+  static const UPDATE_GAME = """
+  mutation Mutations(\$updateGameGameId: String!, \$updateGameEnded: Boolean) {
+    updateGame(gameId: \$updateGameGameId, ended: \$updateGameEnded) {
+      game {
+        id
+      }
+    }
+  }
+  """;
+
+
   static const UPDATE_USER = """
     mutation Mutations(\$userId: String!, \$gender: String, \$handicap: Int) {
       updateUser(userId: \$userId, gender: \$gender, handicap: \$handicap) {
@@ -76,6 +87,31 @@ class Mutations {
         }
       }
     }
+  """;
+
+
+  static const CREATE_SCORE = """
+  mutation Mutations(\$createScoreHoleId: String!, \$createScorePlayerId: String!, \$createScoreValue: Int!) {
+    createScore(holeId: \$createScoreHoleId, playerId: \$createScorePlayerId, value: \$createScoreValue) {
+      ok
+      score {
+        id
+        player {
+          id
+          firstName
+          lastName
+          email
+          birthDate
+          gender
+          handicap
+          totalGames
+          admin
+          active
+        }
+        value
+      }
+    }
+  }
   """;
 
   static const CREATE_REQUEST = """

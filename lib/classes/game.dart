@@ -49,6 +49,22 @@ class Game extends CGCObject {
     return game;
   }
 
+  int totalPar() {
+    int total = 0;
+    for (Hole hole in this.holes) {
+      total += hole.par;
+    }
+    return total;
+  }
+
+  int totalDistance() {
+    int total = 0;
+    for (Hole hole in this.holes) {
+      total += hole.distance;
+    }
+    return total;
+  }
+
 }
 
 
