@@ -1,4 +1,4 @@
-package com.example.compactgolf;
+package com.gada.compactgolf;
 
 import io.flutter.embedding.android.FlutterActivity;
 
