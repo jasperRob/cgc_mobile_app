@@ -103,8 +103,8 @@ class Login extends StatelessWidget {
           padding: globals.padding,
           onPressed: () async {
             // Send Login request
-            // Future<dynamic> data = login(emailController.text, passwordController.text);
-            Future<dynamic> data = login("jasper.robison@gada.io", passwordController.text);
+            Future<dynamic> data = login(emailController.text, passwordController.text);
+            // Future<dynamic> data = login("jasper.robison@gada.io", passwordController.text);
             data.then((body){
               print("MY DETAILS:");
               print(body);
