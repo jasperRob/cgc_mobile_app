@@ -206,6 +206,20 @@ class Queries {
           numHoles
           active
           ended
+          club {
+            id
+            active
+            name
+            email
+            phone
+            address
+            city
+            state
+            country
+            zipCode
+            windDirection
+            windStrength
+          }
           holes {
             edges {
               node {

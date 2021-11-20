@@ -141,23 +141,19 @@ class Login extends StatelessWidget {
         child: Container(
         child: SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Center(
                   child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 70, vertical: 0),
-                    padding: EdgeInsets.fromLTRB(0, 120, 0, 0),
-                    alignment: Alignment(0.0, -0.5),
-                    child: Row(
-                      children: <Widget>[
-                        Image.asset(
-                          'assets/images/marnong_estate_header_logo.png',
-                          alignment: Alignment.center,
-                          width: MediaQuery.of(context).size.width - 140,
-                          //height: MediaQuery.of(context).size.height,
-                        )
-                      ],
-                    ),
+                    // margin: EdgeInsets.symmetric(horizontal: 70, vertical: 0),
+                    // padding: EdgeInsets.fromLTRB(0, 120, 0, 0),
+                    // alignment: Alignment(0.0, -0.5),
+                    child: Image.asset(
+                      'assets/images/marnong_estate_header_logo.png',
+                      // alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width/2,
+                      //height: MediaQuery.of(context).size.height,
+                    )
                   ),
                 ),
                 SizedBox(

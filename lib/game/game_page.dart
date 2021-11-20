@@ -13,18 +13,8 @@ import '../globals.dart' as globals;
 
 Future<dynamic> finishGame(Game game) async {
 
-  const UPDATE_GAME = """
-  mutation Mutations(\$updateGameGameId: String!, \$updateGameEnded: Boolean) {
-    updateGame(gameId: \$updateGameGameId, ended: \$updateGameEnded) {
-      game {
-        id
-      }
-    }
-  }
-  """;
-
   MutationOptions mutationOptions = MutationOptions(
-    document: gql(UPDATE_GAME),
+    document: gql(Mutations.UPDATE_GAME),
     variables: {
       "updateGameGameId": game.id.hexString,
       "updateGameEnded": true,
@@ -130,17 +120,31 @@ class GamePageState extends State<GamePage> {
               physics: const AlwaysScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              itemCount: holes.length,
+              itemCount: (holes.length+1),
               itemBuilder: (context, index) {
-                Hole hole = holes[index];
-                return Card(
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        title: Text("Hole " + hole.holeNum.toString()),
-                        trailing: MaterialButton(
-                          child: Text("View"),
-                          onPressed: (hole.holeNum > 1 && hole.scores.length == 0) ? null : () {
+
+                if (index < holes.length) {
+                  Hole hole = holes[index];
+                  double adjusted = Utils.adjustedDistance(hole.distance, hole.holeNum, game.club.windStrength, globals.user.handicap);
+                  bool unavailable = (hole.holeNum > 1 && hole.scores.length == 0);
+
+                  return Card(
+                    child: Column(
+                      children: <Widget>[
+                        ListTile(
+                          leading: Text(hole.holeNum.toString(),
+                            style: TextStyle(fontSize: 20.0, 
+                              color: unavailable ? Colors.grey.shade300 : null
+                            ),
+                          ),
+                          title: Text("Par " + hole.par.toString(),
+                            style: unavailable ? TextStyle(color: Colors.grey.shade300) : null
+                          ),
+                          subtitle: Text("" + hole.distance.toString() + "m  -  Adjusted: " + adjusted.toStringAsFixed(1) + "m",
+                            style: unavailable ? TextStyle(color: Colors.grey.shade300) : null
+                          ),
+                          trailing: Icon(Icons.reorder),
+                          onTap: unavailable ? null : () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -154,14 +158,26 @@ class GamePageState extends State<GamePage> {
                             ).then((_) => setState(() {}));
                           }
                         )
-                      )
-                    ],
-                  ),
-                );
-              });
-            },
-      ),
-    );
-  }
+                      ],
+                    ),
+                  );
+                } else {
+                  return Card(
+                    child: Column(
+                      children: <Widget>[
+                        ListTile(
+                          title: Text("Total Par: " + game.totalPar().toString()),
+                          subtitle: Text("Total Distance: " + game.totalDistance().toString() + "m"),
+                        )
+                      ]
+                    )
+                  );
+                }
+              }
+            );
+          }
+        )
+      );
+    }
 
 }

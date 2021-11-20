@@ -41,29 +41,30 @@ class FinishedGamePageState extends State<FinishedGamePage> {
   List<TableRow> getScoreTableRows(Game game) {
     print("GETTING ROWS");
 
+    const fontFamily = "Montserrat";
+    final boldStyle = TextStyle(fontWeight: FontWeight.bold, fontFamily: fontFamily);
+    final style = TextStyle(fontFamily: fontFamily);
+
     List<Widget> headerRowWidgets = [
-      tableCellOf(Text("Hole #", style: TextStyle(fontWeight: FontWeight.bold))),
-      tableCellOf(Text("Par", style: TextStyle(fontWeight: FontWeight.bold))),
-      tableCellOf(Text("Distance", style: TextStyle(fontWeight: FontWeight.bold))),
+      tableCellOf(Text("Hole #", style: boldStyle)),
+      tableCellOf(Text("Par", style: boldStyle)),
+      tableCellOf(Text("Distance", style: boldStyle)),
     ];
     for (User player in game.players) {
-      headerRowWidgets.add(Center(child: Text(player.fullName(), style: TextStyle(fontWeight: FontWeight.bold))));
+      headerRowWidgets.add(tableCellOf(Text(player.fullName(), style: boldStyle)));
     }
     List<TableRow> rows = [TableRow(children: headerRowWidgets)];
 
     // // Sort the holes by hole num
     // holes.sort((a, b) => a.holeNum.compareTo(b.holeNum));
-    int totalDistance = 0;
     List<int> totals = List<int>.generate(game.players.length, (int index) => 0);
 
     for (Hole hole in game.holes) {
 
-      totalDistance += hole.distance;
-
       List<Widget> currentRow = [];
-      currentRow.add(tableCellOf(Text("Hole " + hole.holeNum.toString())));
-      currentRow.add(tableCellOf(Text(Utils.orNAInt(hole.par))));
-      currentRow.add(tableCellOf(Text(Utils.orNAInt(hole.distance) + "m")));
+      currentRow.add(tableCellOf(Text("Hole " + hole.holeNum.toString(), style: style)));
+      currentRow.add(tableCellOf(Text(Utils.orNAInt(hole.par), style: style)));
+      currentRow.add(tableCellOf(Text(Utils.orNAInt(hole.distance) + "m", style: style)));
 
       int playerCount = 0;
       for (User player in game.players) {
@@ -82,9 +83,9 @@ class FinishedGamePageState extends State<FinishedGamePage> {
     }
 
     List<Widget> totalScoreWidgets = [
-      tableCellOf(Text("Total:", style: TextStyle(fontWeight: FontWeight.bold))),
-      tableCellOf(Text("")),
-      tableCellOf(Text(totalDistance.toString()+"m")),
+      tableCellOf(Text("Total:", style: boldStyle)),
+      tableCellOf(Text(game.totalPar().toString(), style: style)),
+      tableCellOf(Text(game.totalDistance().toString()+"m", style: style))
     ];
 
     for (int total in totals) {
@@ -136,7 +137,7 @@ class FinishedGamePageState extends State<FinishedGamePage> {
                 Game game = Game.fromJSON(result.data!["node"]);
 
                 return Table(
-                  border: TableBorder.all(),
+                  border: TableBorder.all(color: Colors.grey.shade400, borderRadius: BorderRadius.circular(4.0)),
                   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                   children: getScoreTableRows(game),
                 );

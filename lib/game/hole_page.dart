@@ -24,33 +24,8 @@ LatLng end = LatLng(
 
 Future<dynamic> submitScore(Hole hole, User player, int value) async {
 
-  const CREATE_SCORE = """
-  mutation Mutations(\$createScoreHoleId: String!, \$createScorePlayerId: String!, \$createScoreValue: Int!) {
-    createScore(holeId: \$createScoreHoleId, playerId: \$createScorePlayerId, value: \$createScoreValue) {
-      ok
-      score {
-        id
-        player {
-          id
-          firstName
-          lastName
-          email
-          birthDate
-          gender
-          handicap
-          totalGames
-          admin
-          active
-        }
-        value
-      }
-    }
-  }
-  """;
-
-  print("VALUE: " + value.toString());
   MutationOptions mutationOptions = MutationOptions(
-    document: gql(CREATE_SCORE),
+    document: gql(Mutations.CREATE_SCORE),
     variables: {
       "createScoreHoleId": hole.id.hexString,
       "createScorePlayerId": player.id.hexString,
@@ -120,7 +95,8 @@ class HolePageState extends State<HolePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ARTee(game: widget.game, hole: widget.hole),
+                    // builder: (context) => ARTee(game: widget.game, hole: widget.hole),
+                    builder: (context) => ARTee(),
                   )
                 );
               },
@@ -177,7 +153,7 @@ class HolePageState extends State<HolePage> {
                             fontWeight: FontWeight.bold
                         )),
                     SizedBox(width: 10),
-                    Text(Utils.adjustedDistance(widget.hole.distance, widget.hole.holeNum, 0.2, globals.user.handicap).toStringAsFixed(1) + "m"),
+                    Text(Utils.adjustedDistance(widget.hole.distance, widget.hole.holeNum, widget.game.club.windStrength, globals.user.handicap).toStringAsFixed(1) + "m"),
                   ],
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center

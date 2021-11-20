@@ -97,28 +97,30 @@ class HomePageState extends State<HomePage> {
                     itemBuilder: (context, index) {
                       // Game game = Game.fromJSON(games[index]["node"]);
                       Game game = Game.fromJSON(games[index]);
-                      print("++++++++");
-                      print(games[index]["node"]);
 
                       return Card(
                         child: Column(
                           children: <Widget>[
                             ListTile(
-                              title: getGameTitle(game),
-                              trailing: MaterialButton(
-                                child: Text("View"),
-                                onPressed: () {
-                                  print("PRESSED");
-                                  Navigator.push(
+                              title: Text(game.numHoles.toString() + " Holes"),
+                              subtitle: Text(game.club.name.toString() + "\n" + getSimpleDate(game.created)),
+                              isThreeLine: true,
+                              trailing: Icon(Icons.reorder),
+                              // title: getGameTitle(game),
+                              onTap: () {
+                                print("PRESSED");
+                                Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => new GamePage(
-                                        game: game,
+                                        builder: (context) => new GamePage(
+                                            game: game,
                                         ),
                                     )
-                                  ).then((_) => setState(() {}));
-                                }
-                              )
+                                ).then((_) => setState(() {}));
+                              }
+                              // trailing: MaterialButton(
+                              //   child: Text("View"),
+                              // )
                             )
                           ],
                         ),
@@ -169,21 +171,26 @@ class HomePageState extends State<HomePage> {
                         child: Column(
                           children: <Widget>[
                             ListTile(
-                              title: getGameTitle(game),
-                              trailing: MaterialButton(
-                                child: Text("View"),
-                                onPressed: () {
-                                  print("PRESSED");
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => new FinishedGamePage(
-                                        game: game,
-                                        ),
-                                    )
-                                  ).then((_) => setState(() {}));
-                                }
-                              )
+                              title: Text(game.numHoles.toString() + " Holes"),
+                              subtitle: Text(game.club.name.toString() + "\n" + getSimpleDate(game.created)),
+                              isThreeLine: true,
+                              // title: getGameTitle(game),
+                              onTap: () {
+                                print("PRESSED");
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => new FinishedGamePage(
+                                      game: game,
+                                      ),
+                                  )
+                                ).then((_) => setState(() {}));
+                              }
+                              // 
+                              // title: getGameTitle(game),
+                              // trailing: MaterialButton(
+                              //   child: Text("View"),
+                              // )
                             )
                           ],
                         ),
