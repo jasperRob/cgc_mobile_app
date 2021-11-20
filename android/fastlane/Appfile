@@ -1,0 +1,2 @@
+json_key_file("/Users/acrow/projects/crowtech/clients/aible/aible/keys/firebase/android/aible-1bd7c-firebase-adminsdk-4dgo0-d6572776a2.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
+package_name("app.aible.android3") # e.g. com.krausefx.app
